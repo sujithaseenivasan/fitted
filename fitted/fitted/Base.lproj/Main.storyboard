@@ -117,6 +117,9 @@
                                 <buttonConfiguration key="configuration" style="filled" title="Create Account" cornerStyle="capsule">
                                     <color key="baseBackgroundColor" name="AccentColor 1"/>
                                 </buttonConfiguration>
+                                <connections>
+                                    <action selector="createAccountButtonPressed:" destination="kVj-cq-SB7" eventType="touchUpInside" id="xw3-ZW-6uD"/>
+                                </connections>
                             </button>
                             <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Create Account" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="A4Q-tA-VX1">
                                 <rect key="frame" x="114" y="310.66666666666669" width="174" height="31.333333333333314"/>
@@ -133,6 +136,13 @@
                                     <constraint firstAttribute="width" relation="greaterThanOrEqual" constant="500.32999999999998" id="n2M-UI-oyg"/>
                                 </constraints>
                             </imageView>
+                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" fixedFrame="YES" text="Error" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="4VC-CJ-i44">
+                                <rect key="frame" x="182" y="783" width="38" height="21"/>
+                                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                                <fontDescription key="fontDescription" type="system" pointSize="17"/>
+                                <color key="textColor" name="MainText"/>
+                                <nil key="highlightedColor"/>
+                            </label>
                         </subviews>
                         <viewLayoutGuide key="safeArea" id="0aL-kY-LWa"/>
                         <color key="backgroundColor" name="PrimaryBackground"/>
@@ -164,6 +174,17 @@
                         </constraints>
                     </view>
                     <connections>
+                        <outlet property="alreadyHaveAccountButton" destination="84B-CF-qR4" id="arb-oM-hmk"/>
+                        <outlet property="createAccountButton" destination="xaw-YU-Wmc" id="5jV-ay-fbc"/>
+                        <outlet property="createAccountTextLabel" destination="A4Q-tA-VX1" id="rxr-w2-rEW"/>
+                        <outlet property="emailField" destination="hRN-gM-NFT" id="I3H-lm-g6O"/>
+                        <outlet property="errorLabel" destination="4VC-CJ-i44" id="96x-ud-S7u"/>
+                        <outlet property="firstNameField" destination="NDh-7V-ucB" id="t5t-qa-l4V"/>
+                        <outlet property="lastNameField" destination="Zsf-LN-9D8" id="BXy-Ww-OhW"/>
+                        <outlet property="newToFittedTextLabel" destination="4tK-rt-CXw" id="yCf-Gf-drH"/>
+                        <outlet property="passwordField" destination="yPh-5H-ULJ" id="OhF-Oe-cMW"/>
+                        <outlet property="phoneNumberField" destination="T9S-fR-Gos" id="adl-7i-AgV"/>
+                        <outlet property="reenterPasswordField" destination="PIG-D8-Wwy" id="Jnw-1e-shH"/>
                         <segue destination="jLp-Bt-IPi" kind="presentation" identifier="homeSegue2" id="pb8-iw-P0O"/>
                     </connections>
                 </viewController>
@@ -534,7 +555,7 @@
     </scenes>
     <inferredMetricsTieBreakers>
         <segue reference="pb8-iw-P0O"/>
-        <segue reference="6cw-u9-SnT"/>
+        <segue reference="l0z-qL-Q0y"/>
     </inferredMetricsTieBreakers>
     <resources>
         <image name="FittedLogo" width="500" height="500"/>

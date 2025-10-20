@@ -32,6 +32,7 @@ class LoginViewController: UIViewController, UITextFieldDelegate {
     
     override func viewDidLoad() {
         super.viewDidLoad()
+        print("Login on screen")
 //        loginTextLabel.font = UIFont(name: "Manjari-Regular", size: 32)
 //        alreadyHaveAcctTextLabel.font = UIFont(name: "Manjari-Regular", size: 20)
 //        emailTextField.font = UIFont(name: "Manjari-Regular", size: 16)
