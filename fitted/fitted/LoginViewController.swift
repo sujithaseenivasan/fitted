@@ -14,6 +14,7 @@ class LoginViewController: UIViewController, UITextFieldDelegate {
     @IBOutlet weak var passwordTextField: UITextField!
     
    
+    @IBOutlet weak var testButton: UIButton!
     @IBOutlet weak var errorLabel: UILabel!
     
     let segueIdentifier = "homeSegue1"
