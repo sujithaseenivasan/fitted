@@ -8,6 +8,7 @@
 import UIKit
 import FirebaseFirestore
 import FirebaseCore
+import FirebaseAuth
 
 class ClosetShareGroupsViewController: UIViewController, UICollectionViewDataSource, UICollectionViewDelegateFlowLayout {
     
@@ -15,6 +16,7 @@ class ClosetShareGroupsViewController: UIViewController, UICollectionViewDataSou
     @IBOutlet weak var joinGroupButton: UIButton!
     @IBOutlet weak var collectionView: UICollectionView!
     
+    @IBOutlet weak var logoutButton: UIButton!
     private var groups: [Group] = []
     private let db = Firestore.firestore()
     private let reuseIdentifier = "GroupCardCell"
@@ -91,5 +93,18 @@ class ClosetShareGroupsViewController: UIViewController, UICollectionViewDataSou
         let height: CGFloat = 200
         return CGSize(width: width, height: height)
     }
+    
+    
+    @IBAction func logoutButtonPressed(_ sender: Any) {
+    do {
+            try Auth.auth().signOut()
+            print("User logged out successfully.")
+            
+            navigationController?.popToRootViewController(animated: true)
 
+        } catch let signOutError as NSError {
+            print("Error signing out:", signOutError.localizedDescription)
+        }
+    }
+    
 }
