@@ -545,6 +545,9 @@
                             <constraint firstItem="Beb-we-LEI" firstAttribute="leading" secondItem="Cwx-Wt-lL9" secondAttribute="leading" id="ovL-LI-cGO"/>
                         </constraints>
                     </view>
+                    <connections>
+                        <outlet property="tableView" destination="Beb-we-LEI" id="qA0-UX-hZb"/>
+                    </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="ArU-bM-rta" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
             </objects>

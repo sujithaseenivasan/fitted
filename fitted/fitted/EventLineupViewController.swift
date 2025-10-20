@@ -7,8 +7,17 @@
 
 import UIKit
 
+struct Event {
+    let title: String
+    let description: String
+    let location: String
+    let dateText: String
+    let image: UIImage?
+}
+
 class EventLineupViewController: UIViewController {
 
+    @IBOutlet weak var tableView: UITableView!
     override func viewDidLoad() {
         super.viewDidLoad()
 
