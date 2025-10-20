@@ -473,7 +473,7 @@
                                 <textInputTraits key="textInputTraits"/>
                             </textField>
                             <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="JSo-rz-4Qz">
-                                <rect key="frame" x="106.00000000000001" y="530" width="180.33333333333337" height="35"/>
+                                <rect key="frame" x="138" y="530" width="116.33333333333331" height="35"/>
                                 <color key="tintColor" name="AccentColor 1"/>
                                 <state key="normal" title="Button"/>
                                 <buttonConfiguration key="configuration" style="filled" title="Join"/>
@@ -491,14 +491,15 @@
                             <constraint firstItem="D7F-RO-yIT" firstAttribute="top" secondItem="1Xk-gK-CS8" secondAttribute="bottom" constant="51" id="2bK-Gi-27d"/>
                             <constraint firstItem="p44-EF-w85" firstAttribute="leading" secondItem="xYS-vp-EL3" secondAttribute="leading" constant="55" id="Brh-K4-vRZ"/>
                             <constraint firstItem="p44-EF-w85" firstAttribute="top" secondItem="1Xk-gK-CS8" secondAttribute="bottom" constant="95" id="Gqz-7h-VPn"/>
+                            <constraint firstItem="JSo-rz-4Qz" firstAttribute="leading" secondItem="xYS-vp-EL3" secondAttribute="leading" constant="138" id="P5y-t7-lLY"/>
                             <constraint firstItem="D7F-RO-yIT" firstAttribute="leading" secondItem="xYS-vp-EL3" secondAttribute="leading" constant="55" id="aqw-97-m10"/>
                             <constraint firstItem="1Xk-gK-CS8" firstAttribute="leading" secondItem="xYS-vp-EL3" secondAttribute="leading" constant="145" id="bXl-QV-KyI"/>
                             <constraint firstItem="xYS-vp-EL3" firstAttribute="trailing" secondItem="5mu-QT-u38" secondAttribute="trailing" constant="32" id="cfG-ow-ggy"/>
-                            <constraint firstItem="xYS-vp-EL3" firstAttribute="trailing" secondItem="JSo-rz-4Qz" secondAttribute="trailing" constant="106" id="cfw-VY-KQP"/>
                             <constraint firstItem="JSo-rz-4Qz" firstAttribute="top" secondItem="1Xk-gK-CS8" secondAttribute="bottom" constant="252" id="dLl-Jz-jyP"/>
+                            <constraint firstItem="xYS-vp-EL3" firstAttribute="trailing" secondItem="JSo-rz-4Qz" secondAttribute="trailing" constant="138" id="fDa-AX-dDT"/>
                             <constraint firstItem="1Xk-gK-CS8" firstAttribute="top" secondItem="xYS-vp-EL3" secondAttribute="top" constant="201" id="iZV-Kf-mbt"/>
-                            <constraint firstItem="JSo-rz-4Qz" firstAttribute="centerX" secondItem="QLc-49-npN" secondAttribute="centerX" id="jHO-VV-4Ey"/>
                             <constraint firstItem="xYS-vp-EL3" firstAttribute="trailing" secondItem="1Xk-gK-CS8" secondAttribute="trailing" constant="146" id="nMj-x2-EfE"/>
+                            <constraint firstItem="JSo-rz-4Qz" firstAttribute="centerX" secondItem="QLc-49-npN" secondAttribute="centerX" id="xeB-Lh-EaQ"/>
                         </constraints>
                     </view>
                     <navigationItem key="navigationItem" id="pkh-C5-f70"/>
