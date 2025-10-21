@@ -7,6 +7,7 @@
 
 import UIKit
 import FirebaseFirestore
+import FirebaseStorage
 
 struct Event {
     let title: String
@@ -33,28 +34,59 @@ class EventLineupViewController: UIViewController, UITableViewDataSource {
     }
     
     private func fetchEvents() {
-        db.collection("groups")
-          .document(groupId)
-          .collection("events")
-          .order(by: "time", descending: false)
-          .getDocuments { [weak self] snapshot, _ in
-              guard let self = self, let docs = snapshot?.documents else { return }
-              
-              self.events = docs.compactMap { doc in
-                  let d = doc.data()
-                  // Map your Firestore fields into the Event struct
-                  return Event(
-                    title: d["event_name"] as? String ?? "",
-                    description: d["description"] as? String ?? "",
-                    location: d["location"] as? String ?? "",
-                    dateText: self.formatDate(d["time"]),
-                    imageURL: d["image"] as? String
-                  )
-              }
-              
-              self.tableView.reloadData()
-          }
+        // Get the group document first
+        db.collection("groups").document(groupId).getDocument { [weak self] snapshot, error in
+            guard let self = self else { return }
+            if let error = error {
+                print("Error fetching group:", error.localizedDescription)
+                return
+            }
+            guard let data = snapshot?.data(),
+                  let eventIDs = data["events"] as? [String],
+                  !eventIDs.isEmpty else {
+                print("No events found for this group.")
+                return
+            }
+
+            // Fetch all the events using their IDs
+            let eventsCollection = self.db.collection("events")
+            var loadedEvents: [Event] = []
+            let group = DispatchGroup() // to wait for all fetches to complete
+
+            for id in eventIDs {
+                group.enter()
+                eventsCollection.document(id).getDocument { docSnapshot, error in
+                    defer { group.leave() }
+                    guard let doc = docSnapshot, doc.exists else { return }
+                    let d = doc.data() ?? [:]
+                    let event = Event(
+                        title: d["event_name"] as? String ?? "",
+                        description: d["description"] as? String ?? "",
+                        location: d["location"] as? String ?? "",
+                        dateText: self.formatDate(d["time"]),
+                        imageURL: d["image"] as? String
+                    )
+                    loadedEvents.append(event)
+                }
+            }
+
+            // When all documents are loaded, update the UI
+            group.notify(queue: .main) {
+                self.events = loadedEvents.sorted { $0.dateText < $1.dateText }
+                self.tableView.reloadData()
+            }
+        }
     }
+
+    
+    private func loadImage(from storagePath: String, completion: @escaping (UIImage?) -> Void) {
+        let ref = Storage.storage().reference(forURL: storagePath)
+        ref.getData(maxSize: 5 * 1024 * 1024) { data, error in
+            guard let data = data, error == nil else { completion(nil); return }
+            completion(UIImage(data: data))
+        }
+    }
+
     
     private func formatDate(_ value: Any?) -> String {
         if let timestamp = value as? Timestamp {
@@ -81,32 +113,29 @@ class EventLineupViewController: UIViewController, UITableViewDataSource {
         cell.eventLocation.text = event.location
         cell.eventDate.text = event.dateText
 
+        // Clear any old image first
         cell.eventImage.image = nil
-        if let urlString = event.imageURL, let url = URL(string: urlString) {
+
+        // Load image from Firebase Storage if available
+        if let path = event.imageURL {
             let targetIndexPath = indexPath
-            URLSession.shared.dataTask(with: url) { data, _, _ in
-                guard let data = data, let img = UIImage(data: data) else { return }
-                DispatchQueue.main.async {
-                    if let visible = tableView.cellForRow(at: targetIndexPath) as? EventCell {
-                        visible.eventImage.image = img
+            let ref = Storage.storage().reference(forURL: path)
+            ref.getData(maxSize: 5 * 1024 * 1024) { data, error in
+                guard let data = data, error == nil else {
+                    print("Error loading image for event: \(error?.localizedDescription ?? "Unknown error")")
+                    return
+                }
+                if let image = UIImage(data: data) {
+                    DispatchQueue.main.async {
+                        if let visible = tableView.cellForRow(at: targetIndexPath) as? EventCell {
+                            visible.eventImage.image = image
+                        }
                     }
                 }
-            }.resume()
+            }
         }
 
         return cell
     }
-
-    
-
-    /*
-    // MARK: - Navigation
-
-    // In a storyboard-based application, you will often want to do a little preparation before navigation
-    override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
-        // Get the new view controller using segue.destination.
-        // Pass the selected object to the new view controller.
-    }
-    */
 
 }
