@@ -84,7 +84,6 @@ class ClosetShareGroupsViewController: UIViewController, UICollectionViewDataSou
         return UIEdgeInsets(top: 16, left: 16, bottom: 16, right: 16)
     }
     
-    
     func collectionView(_ collectionView: UICollectionView,
                         layout collectionViewLayout: UICollectionViewLayout,
                         sizeForItemAt indexPath: IndexPath) -> CGSize {
@@ -93,7 +92,6 @@ class ClosetShareGroupsViewController: UIViewController, UICollectionViewDataSou
         let height: CGFloat = 200
         return CGSize(width: width, height: height)
     }
-    
     
     @IBAction func logoutButtonPressed(_ sender: Any) {
     do {
@@ -107,4 +105,12 @@ class ClosetShareGroupsViewController: UIViewController, UICollectionViewDataSou
         }
     }
     
+    func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
+        let selectedGroup = groups[indexPath.item]
+        let sb = UIStoryboard(name: "Main", bundle: nil)
+        let vc = sb.instantiateViewController(withIdentifier: "EventLineupViewController") as! EventLineupViewController
+        vc.groupId = selectedGroup.id           // ← pass the group doc ID
+        navigationController?.pushViewController(vc, animated: true)
+    }
+
 }

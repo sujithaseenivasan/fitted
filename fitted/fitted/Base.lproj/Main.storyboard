@@ -442,7 +442,7 @@
         <!--Event Lineup View Controller-->
         <scene sceneID="TwH-Uh-jlh">
             <objects>
-                <viewController id="gkv-AX-7Ev" customClass="EventLineupViewController" customModule="fitted" customModuleProvider="target" sceneMemberID="viewController">
+                <viewController storyboardIdentifier="EventLineupViewController" id="gkv-AX-7Ev" customClass="EventLineupViewController" customModule="fitted" customModuleProvider="target" sceneMemberID="viewController">
                     <view key="view" contentMode="scaleToFill" id="Caa-40-eTS">
                         <rect key="frame" x="0.0" y="0.0" width="402" height="874"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
