@@ -30,6 +30,7 @@ class EventLineupViewController: UIViewController, UITableViewDataSource {
         super.viewDidLoad()
         tableView.dataSource = self
         fetchEvents()
+        navigationController?.navigationBar.tintColor = UIColor(named: "MainText")
         
     }
     
