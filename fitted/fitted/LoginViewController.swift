@@ -14,7 +14,6 @@ class LoginViewController: UIViewController, UITextFieldDelegate {
     @IBOutlet weak var passwordTextField: UITextField!
     
    
-    @IBOutlet weak var testButton: UIButton!
     @IBOutlet weak var errorLabel: UILabel!
     
     let segueIdentifier = "homeSegue1"
@@ -33,6 +32,7 @@ class LoginViewController: UIViewController, UITextFieldDelegate {
     override func viewDidLoad() {
         super.viewDidLoad()
         print("Login on screen")
+        self.errorLabel.text = ""
 //        loginTextLabel.font = UIFont(name: "Manjari-Regular", size: 32)
 //        alreadyHaveAcctTextLabel.font = UIFont(name: "Manjari-Regular", size: 20)
 //        emailTextField.font = UIFont(name: "Manjari-Regular", size: 16)

@@ -136,9 +136,11 @@
                                     <constraint firstAttribute="width" relation="greaterThanOrEqual" constant="500.32999999999998" id="n2M-UI-oyg"/>
                                 </constraints>
                             </imageView>
-                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" fixedFrame="YES" text="Error" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="4VC-CJ-i44">
-                                <rect key="frame" x="182" y="783" width="38" height="21"/>
-                                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Error" textAlignment="center" lineBreakMode="tailTruncation" numberOfLines="2" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="4VC-CJ-i44">
+                                <rect key="frame" x="76" y="783" width="250" height="20.333333333333371"/>
+                                <constraints>
+                                    <constraint firstAttribute="width" constant="250" id="HIZ-O5-OeB"/>
+                                </constraints>
                                 <fontDescription key="fontDescription" type="system" pointSize="17"/>
                                 <color key="textColor" name="MainText"/>
                                 <nil key="highlightedColor"/>
@@ -147,6 +149,7 @@
                         <viewLayoutGuide key="safeArea" id="0aL-kY-LWa"/>
                         <color key="backgroundColor" name="PrimaryBackground"/>
                         <constraints>
+                            <constraint firstItem="4VC-CJ-i44" firstAttribute="centerX" secondItem="Oeg-UY-2C5" secondAttribute="centerX" id="04p-HC-FAd"/>
                             <constraint firstItem="4tK-rt-CXw" firstAttribute="top" secondItem="A4Q-tA-VX1" secondAttribute="bottom" constant="30.666666666666686" id="52M-3g-7zH"/>
                             <constraint firstItem="NDh-7V-ucB" firstAttribute="centerX" secondItem="Oeg-UY-2C5" secondAttribute="centerX" id="6nL-6A-LHY"/>
                             <constraint firstItem="4tK-rt-CXw" firstAttribute="centerX" secondItem="Oeg-UY-2C5" secondAttribute="centerX" id="718-qF-OF1"/>
@@ -154,6 +157,7 @@
                             <constraint firstItem="hRN-gM-NFT" firstAttribute="centerX" secondItem="Oeg-UY-2C5" secondAttribute="centerX" id="ASE-oK-WGs"/>
                             <constraint firstItem="T9S-fR-Gos" firstAttribute="centerX" secondItem="Oeg-UY-2C5" secondAttribute="centerX" id="BPO-pY-Aer"/>
                             <constraint firstItem="A4Q-tA-VX1" firstAttribute="centerX" secondItem="Oeg-UY-2C5" secondAttribute="centerX" id="E55-Fb-TWS"/>
+                            <constraint firstItem="4VC-CJ-i44" firstAttribute="top" secondItem="xaw-YU-Wmc" secondAttribute="bottom" constant="10.666666666666629" id="KQR-op-aqM"/>
                             <constraint firstItem="PIG-D8-Wwy" firstAttribute="centerX" secondItem="Oeg-UY-2C5" secondAttribute="centerX" id="KsZ-8d-c0K"/>
                             <constraint firstItem="xaw-YU-Wmc" firstAttribute="top" secondItem="84B-CF-qR4" secondAttribute="bottom" constant="8" symbolic="YES" id="La9-qJ-gfw"/>
                             <constraint firstItem="T9S-fR-Gos" firstAttribute="centerX" secondItem="Oeg-UY-2C5" secondAttribute="centerX" id="Mii-ZV-ETI"/>
@@ -268,8 +272,11 @@
                                     <constraint firstAttribute="height" constant="266" id="ixS-d1-eH8"/>
                                 </constraints>
                             </imageView>
-                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Error Label" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="jR9-4X-Ydh">
-                                <rect key="frame" x="159" y="677" width="84" height="21"/>
+                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Error Label" textAlignment="center" lineBreakMode="tailTruncation" numberOfLines="2" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="jR9-4X-Ydh">
+                                <rect key="frame" x="76" y="677" width="250" height="20.333333333333371"/>
+                                <constraints>
+                                    <constraint firstAttribute="width" constant="250" id="LGN-oX-5iG"/>
+                                </constraints>
                                 <fontDescription key="fontDescription" type="system" pointSize="17"/>
                                 <color key="textColor" name="MainText"/>
                                 <nil key="highlightedColor"/>

@@ -30,6 +30,7 @@ class CreateAccountViewController: UIViewController, UITextFieldDelegate {
     
     override func viewDidLoad() {
         super.viewDidLoad()
+        self.errorLabel.text = ""
 //        createAccountTextLabel.font = UIFont(name: "Manjari-Regular", size: 32)
 //        newToFittedTextLabel.font = UIFont(name: "Manjari-Regular", size: 20)
 //        firstNameField.font = UIFont(name: "Manjari-Regular", size: 16)
