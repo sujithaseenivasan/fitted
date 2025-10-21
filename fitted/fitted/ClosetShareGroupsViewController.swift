@@ -9,6 +9,7 @@ import UIKit
 import FirebaseFirestore
 import FirebaseCore
 import FirebaseAuth
+import FirebaseStorage
 
 class ClosetShareGroupsViewController: UIViewController, UICollectionViewDataSource, UICollectionViewDelegateFlowLayout {
     
@@ -59,6 +60,23 @@ class ClosetShareGroupsViewController: UIViewController, UICollectionViewDataSou
         }
     }
     
+    private func loadImage(from storagePath: String, completion: @escaping (UIImage?) -> Void) {
+        let storageRef = Storage.storage().reference(forURL: storagePath)
+        storageRef.getData(maxSize: 5 * 1024 * 1024) { data, error in
+            if let error = error {
+                print("Error loading image: \(error.localizedDescription)")
+                completion(nil)
+                return
+            }
+            if let data = data, let image = UIImage(data: data) {
+                completion(image)
+            } else {
+                completion(nil)
+            }
+        }
+    }
+
+    
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
         return groups.count
     }
@@ -69,13 +87,25 @@ class ClosetShareGroupsViewController: UIViewController, UICollectionViewDataSou
                                                             for: indexPath) as? GroupCardCell else {
             return UICollectionViewCell()
         }
-        //populate group cell
+
         let group = groups[indexPath.item]
         cell.titleLabel.text = group.name
-        // TODO: implement image handling, this is fine for now
+        // in cellForItemAt
         cell.logoImageView.image = nil
+        if let path = group.imagePath {
+            let currentIndexPath = indexPath
+            loadImage(from: path) { image in
+                DispatchQueue.main.async {
+                    if let visible = collectionView.cellForItem(at: currentIndexPath) as? GroupCardCell {
+                        visible.logoImageView.image = image
+                    }
+                }
+            }
+        }
+
         return cell
     }
+
     
     //layout one card per row
     func collectionView(_ collectionView: UICollectionView,

@@ -5,7 +5,6 @@
         <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="23506"/>
         <capability name="Named colors" minToolsVersion="9.0"/>
         <capability name="Safe area layout guides" minToolsVersion="9.0"/>
-        <capability name="System colors in document resources" minToolsVersion="11.0"/>
         <capability name="collection view cell content view" minToolsVersion="11.0"/>
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
     </dependencies>
@@ -346,7 +345,7 @@
                             </button>
                             <collectionView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" dataMode="prototypes" translatesAutoresizingMaskIntoConstraints="NO" id="A9y-fW-U9P">
                                 <rect key="frame" x="16" y="123" width="370" height="676"/>
-                                <color key="backgroundColor" systemColor="systemBackgroundColor"/>
+                                <color key="backgroundColor" name="PrimaryBackground"/>
                                 <collectionViewFlowLayout key="collectionViewLayout" automaticEstimatedItemSize="YES" minimumLineSpacing="10" minimumInteritemSpacing="10" id="rs9-fh-yfW">
                                     <size key="itemSize" width="344" height="181"/>
                                     <size key="headerReferenceSize" width="0.0" height="0.0"/>
@@ -614,9 +613,12 @@
                             </textField>
                             <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="JSo-rz-4Qz">
                                 <rect key="frame" x="138" y="474" width="116.33333333333331" height="35"/>
+                                <color key="backgroundColor" name="AccentColor 1"/>
                                 <color key="tintColor" name="AccentColor 1"/>
                                 <state key="normal" title="Button"/>
-                                <buttonConfiguration key="configuration" style="filled" title="Join"/>
+                                <buttonConfiguration key="configuration" style="filled" title="Join">
+                                    <color key="baseBackgroundColor" name="AccentColor 1"/>
+                                </buttonConfiguration>
                                 <connections>
                                     <action selector="joinButtonTapped:" destination="8Dp-om-aOK" eventType="touchUpInside" id="rsI-Gf-G27"/>
                                 </connections>
@@ -692,8 +694,5 @@
         <namedColor name="SecondaryPink">
             <color red="0.9179999828338623" green="0.60399997234344482" blue="0.69800001382827759" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
         </namedColor>
-        <systemColor name="systemBackgroundColor">
-            <color white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
-        </systemColor>
     </resources>
 </document>

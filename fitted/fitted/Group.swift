@@ -10,7 +10,7 @@ import Foundation
 struct Group {
     let id: String
     let name: String
-    let photoURL: URL?
+    let imagePath: String?
     let description: String?
     let ownerUid: String?
 
@@ -19,11 +19,7 @@ struct Group {
         self.id = id
         guard let name = dict["group_name"] as? String else { return nil }
         self.name = name
-        if let urlString = dict["photo"] as? String, let url = URL(string: urlString) {
-            self.photoURL = url
-        } else {
-            self.photoURL = nil
-        }
+        self.imagePath = dict["image"] as? String     // Firestore field key = "image"
         self.description = dict["description"] as? String
         self.ownerUid = dict["group_owner"] as? String
     }
