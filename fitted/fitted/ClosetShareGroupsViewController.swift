@@ -33,32 +33,78 @@ class ClosetShareGroupsViewController: UIViewController, UICollectionViewDataSou
         fetchGroups()
     }
     
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        fetchGroups()   // refresh list every time user returns
+    }
+
+    
     //fetches all documents in "groups" collection in firebase
     func fetchGroups() {
-        
-        db.collection("groups").getDocuments { [weak self] snapshot, error in
+        // Must have a signed-in user
+        guard let uid = Auth.auth().currentUser?.uid else {
+            print("No signed-in user; cannot load joined groups.")
+            self.groups = []
+            self.collectionView.reloadData()
+            return
+        }
+
+        // 1) Read the user's joinedGroups (array of group doc IDs)
+        db.collection("users").document(uid).getDocument { [weak self] snap, err in
             guard let self = self else { return }
-            //handle errors
-            if let error = error {
-                print("Error fetching groups:", error.localizedDescription)
+
+            if let err = err {
+                print("Error fetching user doc: \(err.localizedDescription)")
+                self.groups = []
+                self.collectionView.reloadData()
                 return
             }
-            // guard snapshot and map documents to Group models
-            guard let docs = snapshot?.documents else { return }
-            var loaded: [Group] = []
-            for doc in docs {
-                if let g = Group(id: doc.documentID, dict: doc.data()) {
-                    loaded.append(g)
-                }
+
+            let data = snap?.data() ?? [:]
+            let joinedIds = data["joinedGroups"] as? [String] ?? []   // ← field name per your schema
+            guard !joinedIds.isEmpty else {
+                // User hasn't joined any groups
+                self.groups = []
+                self.collectionView.reloadData()
+                return
             }
-            // sort by name for consistent ordering
-            self.groups = loaded.sorted { $0.name.localizedCaseInsensitiveCompare($1.name) == .orderedAscending }
-            // reload UI on main thread
-            DispatchQueue.main.async {
+
+            // 2) Fetch those group docs by ID (batch in chunks of ≤10 for 'in' queries)
+            var loaded: [Group] = []
+            let dispatchGroup = DispatchGroup()
+
+            let chunks: [[String]] = stride(from: 0, to: joinedIds.count, by: 10).map {
+                Array(joinedIds[$0..<min($0 + 10, joinedIds.count)])
+            }
+
+            for chunk in chunks {
+                dispatchGroup.enter()
+                self.db.collection("groups")
+                    .whereField(FieldPath.documentID(), in: chunk)
+                    .getDocuments { snap, err in
+                        if let err = err {
+                            print("Error fetching groups chunk: \(err.localizedDescription)")
+                        } else if let docs = snap?.documents {
+                            for doc in docs {
+                                if let g = Group(id: doc.documentID, dict: doc.data()) {
+                                    loaded.append(g)
+                                }
+                            }
+                        }
+                        dispatchGroup.leave()
+                    }
+            }
+
+            // 3) When all chunks complete, sort and reload UI
+            dispatchGroup.notify(queue: .main) {
+                self.groups = loaded.sorted {
+                    $0.name.localizedCaseInsensitiveCompare($1.name) == .orderedAscending
+                }
                 self.collectionView.reloadData()
             }
         }
     }
+
     
     private func loadImage(from storagePath: String, completion: @escaping (UIImage?) -> Void) {
         let storageRef = Storage.storage().reference(forURL: storagePath)

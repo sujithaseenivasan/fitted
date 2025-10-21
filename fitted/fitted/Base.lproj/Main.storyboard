@@ -541,6 +541,7 @@
                             </tableView>
                             <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="Z8S-sg-cgR">
                                 <rect key="frame" x="322.33333333333331" y="96" width="49.666666666666686" height="34.333333333333343"/>
+                                <color key="tintColor" name="SecondaryPink"/>
                                 <state key="normal" title="Button"/>
                                 <buttonConfiguration key="configuration" style="plain" image="plus.circle" catalog="system"/>
                                 <connections>

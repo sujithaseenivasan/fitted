@@ -27,49 +27,61 @@ class GroupsJoinViewController: UIViewController {
             showAlert(title: "Error", message: "Please enter a group ID.")
             return
         }
-        let enteredPassword = passwordField.text ?? ""
+        let enteredPassword = (passwordField.text ?? "").trimmingCharacters(in: .whitespacesAndNewlines)
 
-        // 1) Find the group by its human-friendly code in field "id"
         db.collection("groups")
-          .whereField("id", isEqualTo: code)
-          .limit(to: 1)
-          .getDocuments { [weak self] snap, err in
-            guard let self = self else { return }
-            if let err = err { self.showAlert(title: "Error", message: err.localizedDescription); return }
-            guard let doc = snap?.documents.first else {
-                self.showAlert(title: "Invalid Group", message: "No group found with that ID.")
-                return
-            }
+            .whereField("id", isEqualTo: code)
+            .limit(to: 1)
+            .getDocuments { [weak self] snap, err in
+                guard let self = self else { return }
 
-            let data = doc.data()
-            let storedPassword = data["password"] as? String ?? ""   // ← matches your schema
-            if !storedPassword.isEmpty && storedPassword != enteredPassword {
-                self.showAlert(title: "Wrong Password", message: "The password you entered is incorrect.")
-                return
-            }
+                if let err = err {
+                    self.showAlert(title: "Error", message: err.localizedDescription)
+                    return
+                }
 
-            guard let uid = Auth.auth().currentUser?.uid else {
-                self.showAlert(title: "Not Signed In", message: "You must be signed in to join a group.")
-                return
-            }
+                guard let doc = snap?.documents.first else {
+                    self.showAlert(title: "Invalid Group", message: "No group found with that ID.")
+                    return
+                }
 
-            // 2) Save the Firestore **document ID** to the user’s joined_groups
-            let groupDocId = doc.documentID
-            let userRef = self.db.collection("users").document(uid)
-            userRef.updateData(["joined_groups": FieldValue.arrayUnion([groupDocId])]) { updateErr in
-                if let updateErr = updateErr as NSError?, updateErr.code == FirestoreErrorCode.notFound.rawValue {
-                    userRef.setData(["joined_groups": [groupDocId]]) { setErr in
-                        setErr == nil
-                          ? self.showAlert(title: "Joined", message: "Successfully joined the group.")
-                          : self.showAlert(title: "Error", message: "Failed to add group: \(setErr!.localizedDescription)")
+                let data = doc.data()
+                let storedPassword = data["password"] as? String ?? ""
+                if !storedPassword.isEmpty && storedPassword != enteredPassword {
+                    self.showAlert(title: "Wrong Password", message: "The password you entered is incorrect.")
+                    return
+                }
+
+                guard let uid = Auth.auth().currentUser?.uid else {
+                    self.showAlert(title: "Not Signed In", message: "You must be signed in to join a group.")
+                    return
+                }
+
+                let groupDocId = doc.documentID
+                let userRef = self.db.collection("users").document(uid)
+
+                userRef.setData(["joinedGroups": FieldValue.arrayUnion([groupDocId])],
+                                merge: true) { writeErr in
+                    if let writeErr = writeErr {
+                        self.showAlert(title: "Error", message: "Failed to add group: \(writeErr.localizedDescription)")
+                        return
                     }
-                } else if let updateErr = updateErr {
-                    self.showAlert(title: "Error", message: "Failed to add group: \(updateErr.localizedDescription)")
-                } else {
-                    self.showAlert(title: "Joined", message: "Successfully joined the group.")
+
+                    // Success alert that also pops back
+                    DispatchQueue.main.async {
+                        let ac = UIAlertController(
+                            title: "Joined",
+                            message: "Successfully joined the group.",
+                            preferredStyle: .alert
+                        )
+                        ac.addAction(UIAlertAction(title: "OK", style: .default) { _ in
+                            // Go back once the alert is dismissed
+                            self.navigationController?.popViewController(animated: true)
+                        })
+                        self.present(ac, animated: true, completion: nil)
+                    }
                 }
             }
-        }
     }
 
     //helper for displaying alerts
