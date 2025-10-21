@@ -24,4 +24,9 @@ class GroupCardCell: UICollectionViewCell {
 //        contentView.layer.shadowOffset = CGSize(width: 0, height: 2)
 //        contentView.layer.masksToBounds = false
     }
+    
+    override func prepareForReuse() {
+        super.prepareForReuse()
+        logoImageView.image = nil
+    }
 }

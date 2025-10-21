@@ -128,7 +128,8 @@ class ClosetShareGroupsViewController: UIViewController, UICollectionViewDataSou
     }
     
     //dequeue a cell and populate it with group's data
-    func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
+    func collectionView(_ collectionView: UICollectionView,
+                        cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         guard let cell = collectionView.dequeueReusableCell(withReuseIdentifier: reuseIdentifier,
                                                             for: indexPath) as? GroupCardCell else {
             return UICollectionViewCell()
@@ -136,13 +137,23 @@ class ClosetShareGroupsViewController: UIViewController, UICollectionViewDataSou
 
         let group = groups[indexPath.item]
         cell.titleLabel.text = group.name
-        // in cellForItemAt
+
+        // reset every reuse
         cell.logoImageView.image = nil
+        cell.logoImageView.contentMode = .scaleAspectFit
+        cell.logoImageView.clipsToBounds = true
+
+        // capture the model id to validate later
+        let currentGroupId = group.id
+
         if let path = group.imagePath {
-            let currentIndexPath = indexPath
-            loadImage(from: path) { image in
+            loadImage(from: path) { [weak self] image in
                 DispatchQueue.main.async {
-                    if let visible = collectionView.cellForItem(at: currentIndexPath) as? GroupCardCell {
+                    guard let self = self else { return }
+                    // Find the current indexPath for this cell and confirm the model id matches
+                    if let visible = collectionView.cellForItem(at: indexPath) as? GroupCardCell,
+                       self.groups.indices.contains(indexPath.item),
+                       self.groups[indexPath.item].id == currentGroupId {
                         visible.logoImageView.image = image
                     }
                 }
@@ -151,6 +162,7 @@ class ClosetShareGroupsViewController: UIViewController, UICollectionViewDataSou
 
         return cell
     }
+
 
     
     //layout one card per row
@@ -168,6 +180,59 @@ class ClosetShareGroupsViewController: UIViewController, UICollectionViewDataSou
         let height: CGFloat = 200
         return CGSize(width: width, height: height)
     }
+    
+    // iOS 13+
+    func collectionView(_ collectionView: UICollectionView,
+                        contextMenuConfigurationForItemAt indexPath: IndexPath,
+                        point: CGPoint) -> UIContextMenuConfiguration? {
+
+        let group = groups[indexPath.item]
+
+        return UIContextMenuConfiguration(identifier: nil, previewProvider: nil) { _ in
+            let leave = UIAction(
+                title: "Leave Group",
+                image: UIImage(systemName: "person.crop.circle.badge.minus"),
+                attributes: .destructive
+            ) { _ in
+                self.confirmLeave(group: group, indexPath: indexPath)
+            }
+            return UIMenu(children: [leave])
+        }
+    }
+    
+    private func confirmLeave(group: Group, indexPath: IndexPath) {
+        let ac = UIAlertController(
+            title: "Leave “\(group.name)”?",
+            message: "You’ll be removed from this group.",
+            preferredStyle: .alert
+        )
+        ac.addAction(UIAlertAction(title: "Cancel", style: .cancel))
+        ac.addAction(UIAlertAction(title: "Leave", style: .destructive) { _ in
+            self.leave(group: group, indexPath: indexPath)
+        })
+        present(ac, animated: true)
+    }
+
+    private func leave(group: Group, indexPath: IndexPath) {
+        guard let uid = Auth.auth().currentUser?.uid else { return }
+
+        db.collection("users").document(uid)
+          .updateData(["joinedGroups": FieldValue.arrayRemove([group.id])]) { err in
+            DispatchQueue.main.async {
+                guard err == nil else { print(err!.localizedDescription); return }
+
+                // Update model
+                self.groups.remove(at: indexPath.item)
+
+                // Hard refresh with animations disabled to avoid the “zoom” flicker
+                UIView.performWithoutAnimation {
+                    self.collectionView.reloadData()
+                    self.collectionView.layoutIfNeeded()
+                }
+            }
+        }
+    }
+
     
     @IBAction func logoutButtonPressed(_ sender: Any) {
     do {
