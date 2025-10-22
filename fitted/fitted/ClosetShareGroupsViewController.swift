@@ -163,7 +163,6 @@ class ClosetShareGroupsViewController: UIViewController, UICollectionViewDataSou
         return cell
     }
 
-
     
     //layout one card per row
     func collectionView(_ collectionView: UICollectionView,
@@ -232,7 +231,6 @@ class ClosetShareGroupsViewController: UIViewController, UICollectionViewDataSou
             }
         }
     }
-
     
     @IBAction func logoutButtonPressed(_ sender: Any) {
     do {
