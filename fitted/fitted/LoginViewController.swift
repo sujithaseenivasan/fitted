@@ -17,6 +17,7 @@ class LoginViewController: UIViewController, UITextFieldDelegate {
     @IBOutlet weak var errorLabel: UILabel!
     
     let segueIdentifier = "homeSegue1"
+    private var didSwapRoot = false
     
     @IBOutlet weak var loginTextLabel: UILabel!
     
@@ -45,13 +46,12 @@ class LoginViewController: UIViewController, UITextFieldDelegate {
         //self.passwordTextField.isSecureTextEntry = true
         
         // Listener to check if a user has logged in and initiate segue
-        Auth.auth().addStateDidChangeListener() {
-            (auth, user) in
-            if user != nil {
-                self.performSegue(withIdentifier: self.segueIdentifier, sender: nil)
-                self.clearFields()
-            }
-        }
+        Auth.auth().addStateDidChangeListener { [weak self] _, user in
+                    guard let self = self, user != nil, !self.didSwapRoot else { return }
+                    self.didSwapRoot = true
+                    self.clearFields()
+                    DispatchQueue.main.async { self.switchToMainApp() }
+                }
         
         
         emailTextField.delegate = self
@@ -74,9 +74,11 @@ class LoginViewController: UIViewController, UITextFieldDelegate {
                 (authResult, error) in
                 if let error = error as NSError? {
                     self.errorLabel.text = "\(error.localizedDescription)"
-                } else {
-                    //since you are logged in set up the logOut bool to false
+                } else if !self.didSwapRoot {
                     self.errorLabel.text = ""
+                    self.didSwapRoot = true
+                    self.clearFields()
+                    self.switchToMainApp()
                 }
             }
         }
@@ -89,5 +91,19 @@ class LoginViewController: UIViewController, UITextFieldDelegate {
     
     @IBAction func forgotPassword(_ sender: Any) {
         //changePassword(emailTextField.text!)
+    }
+    
+    func switchToMainApp() {
+        let sb = UIStoryboard(name: "Main", bundle: nil)
+        let tab = sb.instantiateViewController(withIdentifier: "MainTabBarControllerID")
+
+        tab.modalPresentationStyle = .fullScreen
+
+        // iOS 13+ with SceneDelegate
+        if let windowScene = view.window?.windowScene,
+           let sceneDelegate = windowScene.delegate as? SceneDelegate {
+            sceneDelegate.window?.rootViewController = tab
+            sceneDelegate.window?.makeKeyAndVisible()
+        }
     }
 }

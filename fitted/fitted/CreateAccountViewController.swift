@@ -27,6 +27,7 @@ class CreateAccountViewController: UIViewController, UITextFieldDelegate {
     @IBOutlet weak var errorLabel: UILabel!
 
     let segueIdentifier = "homeSegue2"
+    private var didSwapRoot = false
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -51,12 +52,11 @@ class CreateAccountViewController: UIViewController, UITextFieldDelegate {
         self.reenterPasswordField.isSecureTextEntry = true
         
         // Listener to check if a user has logged in and initiate segue
-        Auth.auth().addStateDidChangeListener() {
-            (auth, user) in
-            if user != nil {
-                self.performSegue(withIdentifier: self.segueIdentifier, sender: nil)
-                self.clearFields()
-            }
+        Auth.auth().addStateDidChangeListener() { [weak self] _, user in
+            guard let self = self, user != nil, !self.didSwapRoot else { return }
+            self.didSwapRoot = true
+            self.clearFields()
+            DispatchQueue.main.async { self.switchToMainApp() }
         }
     }
     
@@ -104,6 +104,12 @@ class CreateAccountViewController: UIViewController, UITextFieldDelegate {
                 }
             }
         }
+        if !self.didSwapRoot {
+            self.errorLabel.text = ""
+            self.didSwapRoot = true
+            self.clearFields()
+            self.switchToMainApp()
+        }
     }
 
     func clearFields() {
@@ -114,6 +120,20 @@ class CreateAccountViewController: UIViewController, UITextFieldDelegate {
         self.passwordField.text = nil
         self.reenterPasswordField.text = nil
     }
+    
+    func switchToMainApp() {
+            let sb = UIStoryboard(name: "Main", bundle: nil)
+            let tab = sb.instantiateViewController(withIdentifier: "MainTabBarControllerID")
+
+            tab.modalPresentationStyle = .fullScreen
+
+            // iOS 13+ with SceneDelegate
+            if let windowScene = view.window?.windowScene,
+               let sceneDelegate = windowScene.delegate as? SceneDelegate {
+                sceneDelegate.window?.rootViewController = tab
+                sceneDelegate.window?.makeKeyAndVisible()
+            }
+        }
 
 
 }
