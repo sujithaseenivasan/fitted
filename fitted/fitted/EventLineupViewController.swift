@@ -35,6 +35,7 @@ class EventLineupViewController: UIViewController, UITableViewDataSource {
     }
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
+        fetchEvents()
         tableView.reloadData()
     }
 
