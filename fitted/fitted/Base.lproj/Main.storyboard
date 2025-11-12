@@ -907,6 +907,9 @@
                                 <color key="tintColor" name="SecondaryPink"/>
                                 <state key="normal" title="Button"/>
                                 <buttonConfiguration key="configuration" style="plain" image="plus.circle" catalog="system"/>
+                                <connections>
+                                    <segue destination="RXW-jR-P6W" kind="presentation" id="2an-qc-ffv"/>
+                                </connections>
                             </button>
                         </subviews>
                         <viewLayoutGuide key="safeArea" id="kxg-9X-kgq"/>
@@ -932,17 +935,17 @@
             <objects>
                 <viewController id="RXW-jR-P6W" customClass="UploadItemViewController" customModule="fitted" customModuleProvider="target" sceneMemberID="viewController">
                     <view key="view" contentMode="scaleToFill" id="Y3Y-Zn-r3U">
-                        <rect key="frame" x="0.0" y="0.0" width="402" height="874"/>
+                        <rect key="frame" x="0.0" y="0.0" width="402" height="864"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
                             <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Item Information" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="fGP-9r-gGU">
-                                <rect key="frame" x="30" y="88" width="125" height="21"/>
+                                <rect key="frame" x="30" y="26" width="125" height="21"/>
                                 <fontDescription key="fontDescription" type="system" pointSize="17"/>
                                 <nil key="textColor"/>
                                 <nil key="highlightedColor"/>
                             </label>
                             <textField opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="248" contentHorizontalAlignment="left" contentVerticalAlignment="center" borderStyle="roundedRect" placeholder="Item Name" textAlignment="natural" minimumFontSize="17" translatesAutoresizingMaskIntoConstraints="NO" id="ZoG-pA-tA3">
-                                <rect key="frame" x="30" y="129" width="335" height="34"/>
+                                <rect key="frame" x="30" y="67" width="335" height="34"/>
                                 <constraints>
                                     <constraint firstAttribute="width" constant="335" id="ekS-LF-17o"/>
                                 </constraints>
@@ -950,7 +953,7 @@
                                 <textInputTraits key="textInputTraits"/>
                             </textField>
                             <textField opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="248" contentHorizontalAlignment="left" contentVerticalAlignment="center" borderStyle="roundedRect" placeholder="Brand Name" textAlignment="natural" minimumFontSize="17" translatesAutoresizingMaskIntoConstraints="NO" id="IOE-Hy-zvH">
-                                <rect key="frame" x="30" y="183" width="335" height="34"/>
+                                <rect key="frame" x="30" y="121" width="335" height="34"/>
                                 <constraints>
                                     <constraint firstAttribute="width" constant="335" id="8Hp-pa-Tu6"/>
                                 </constraints>
@@ -958,7 +961,7 @@
                                 <textInputTraits key="textInputTraits"/>
                             </textField>
                             <textField opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="248" contentHorizontalAlignment="left" contentVerticalAlignment="center" borderStyle="roundedRect" placeholder="Rental Price" textAlignment="natural" minimumFontSize="17" translatesAutoresizingMaskIntoConstraints="NO" id="WMf-G3-GJw">
-                                <rect key="frame" x="30" y="237" width="335" height="34"/>
+                                <rect key="frame" x="30" y="175" width="335" height="34"/>
                                 <constraints>
                                     <constraint firstAttribute="width" constant="335" id="UJY-aU-4Pq"/>
                                 </constraints>
@@ -966,7 +969,7 @@
                                 <textInputTraits key="textInputTraits"/>
                             </textField>
                             <textField opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="248" contentHorizontalAlignment="left" contentVerticalAlignment="center" borderStyle="roundedRect" placeholder="Select Size" textAlignment="natural" minimumFontSize="17" translatesAutoresizingMaskIntoConstraints="NO" id="DkD-FN-bD2">
-                                <rect key="frame" x="30" y="291" width="335" height="34"/>
+                                <rect key="frame" x="30" y="229" width="335" height="34"/>
                                 <constraints>
                                     <constraint firstAttribute="width" constant="335" id="OGU-Rc-1Hp"/>
                                 </constraints>
@@ -974,13 +977,13 @@
                                 <textInputTraits key="textInputTraits"/>
                             </textField>
                             <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Description" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="9hI-TE-HHs">
-                                <rect key="frame" x="30" y="453" width="88" height="21"/>
+                                <rect key="frame" x="30" y="391" width="88" height="21"/>
                                 <fontDescription key="fontDescription" type="system" pointSize="17"/>
                                 <nil key="textColor"/>
                                 <nil key="highlightedColor"/>
                             </label>
                             <textView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" textAlignment="natural" translatesAutoresizingMaskIntoConstraints="NO" id="KY0-iR-jiB">
-                                <rect key="frame" x="30" y="484" width="335" height="75"/>
+                                <rect key="frame" x="30" y="422" width="335" height="75"/>
                                 <color key="backgroundColor" systemColor="systemBackgroundColor"/>
                                 <constraints>
                                     <constraint firstAttribute="height" constant="75" id="P4W-ux-rEN"/>
@@ -991,28 +994,28 @@
                                 <textInputTraits key="textInputTraits" autocapitalizationType="sentences"/>
                             </textView>
                             <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Item Photo" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="rep-Mc-JV9">
-                                <rect key="frame" x="30" y="579" width="83" height="21"/>
+                                <rect key="frame" x="30" y="517" width="83" height="21"/>
                                 <fontDescription key="fontDescription" type="system" pointSize="17"/>
                                 <nil key="textColor"/>
                                 <nil key="highlightedColor"/>
                             </label>
                             <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="tB3-4d-Ucj">
-                                <rect key="frame" x="131" y="601" width="140" height="35"/>
+                                <rect key="frame" x="131" y="539" width="140" height="35"/>
                                 <state key="normal" title="Button"/>
                                 <buttonConfiguration key="configuration" style="plain" title="Click to Upload"/>
                                 <connections>
-                                    <action selector="uploadButtonPressed:" destination="RXW-jR-P6W" eventType="touchUpInside" id="h8n-9O-bWg"/>
+                                    <action selector="uploadButtonPressed:" destination="RXW-jR-P6W" eventType="touchUpInside" id="qGb-xk-iTF"/>
                                 </connections>
                             </button>
                             <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" translatesAutoresizingMaskIntoConstraints="NO" id="Cc0-1d-5Wd">
-                                <rect key="frame" x="93.666666666666686" y="651" width="215" height="115"/>
+                                <rect key="frame" x="93.666666666666686" y="589" width="215" height="115"/>
                                 <constraints>
                                     <constraint firstAttribute="width" constant="215" id="s7G-NK-HhU"/>
                                     <constraint firstAttribute="height" constant="115" id="xdD-da-Q2J"/>
                                 </constraints>
                             </imageView>
                             <textField opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="248" contentHorizontalAlignment="left" contentVerticalAlignment="center" borderStyle="roundedRect" placeholder="Select Color" textAlignment="natural" minimumFontSize="17" translatesAutoresizingMaskIntoConstraints="NO" id="t3w-p2-yAC">
-                                <rect key="frame" x="30" y="345" width="335" height="34"/>
+                                <rect key="frame" x="30" y="283" width="335" height="34"/>
                                 <constraints>
                                     <constraint firstAttribute="width" constant="335" id="eaM-Bt-SWM"/>
                                 </constraints>
@@ -1020,7 +1023,7 @@
                                 <textInputTraits key="textInputTraits"/>
                             </textField>
                             <textField opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="248" contentHorizontalAlignment="left" contentVerticalAlignment="center" borderStyle="roundedRect" placeholder="Clothing Type" textAlignment="natural" minimumFontSize="17" translatesAutoresizingMaskIntoConstraints="NO" id="YKb-BO-RFB">
-                                <rect key="frame" x="30" y="399" width="335" height="34"/>
+                                <rect key="frame" x="30" y="337" width="335" height="34"/>
                                 <constraints>
                                     <constraint firstAttribute="width" constant="335" id="vKE-kl-CwK"/>
                                 </constraints>
@@ -1028,11 +1031,11 @@
                                 <textInputTraits key="textInputTraits"/>
                             </textField>
                             <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="16u-sS-4d5">
-                                <rect key="frame" x="154.66666666666666" y="774" width="93" height="35"/>
+                                <rect key="frame" x="154.66666666666666" y="712" width="93" height="35"/>
                                 <state key="normal" title="Button"/>
                                 <buttonConfiguration key="configuration" style="plain" title="Add Item"/>
                                 <connections>
-                                    <action selector="addButtonPressed:" destination="RXW-jR-P6W" eventType="touchUpInside" id="dQT-1h-2po"/>
+                                    <action selector="addButtonPressed:" destination="RXW-jR-P6W" eventType="touchUpInside" id="Zau-PZ-vSb"/>
                                 </connections>
                             </button>
                         </subviews>
@@ -1068,16 +1071,16 @@
                         </constraints>
                     </view>
                     <connections>
-                        <outlet property="addItemButton" destination="16u-sS-4d5" id="6sv-3U-TSK"/>
-                        <outlet property="brandField" destination="IOE-Hy-zvH" id="hia-tY-Fom"/>
-                        <outlet property="clothingTypeField" destination="YKb-BO-RFB" id="5ek-bX-dN7"/>
-                        <outlet property="colorField" destination="t3w-p2-yAC" id="pNA-OT-RrQ"/>
-                        <outlet property="descriptionText" destination="KY0-iR-jiB" id="Ub9-yf-3CH"/>
-                        <outlet property="imageView" destination="Cc0-1d-5Wd" id="mo5-P1-N8V"/>
-                        <outlet property="nameField" destination="ZoG-pA-tA3" id="OxT-5r-VIw"/>
-                        <outlet property="rentalPriceField" destination="WMf-G3-GJw" id="WsE-8j-TPm"/>
-                        <outlet property="sizeField" destination="DkD-FN-bD2" id="RXl-Aw-DSC"/>
-                        <outlet property="uploadImageButton" destination="tB3-4d-Ucj" id="tDI-9O-AYy"/>
+                        <outlet property="addItemButton" destination="16u-sS-4d5" id="uFT-gB-c4C"/>
+                        <outlet property="brandField" destination="IOE-Hy-zvH" id="d3f-s1-5rZ"/>
+                        <outlet property="clothingTypeField" destination="YKb-BO-RFB" id="NSh-o3-xO4"/>
+                        <outlet property="colorField" destination="t3w-p2-yAC" id="z38-LS-U8i"/>
+                        <outlet property="descriptionText" destination="KY0-iR-jiB" id="v4d-IG-Bdd"/>
+                        <outlet property="imageView" destination="Cc0-1d-5Wd" id="1tk-8H-qdC"/>
+                        <outlet property="nameField" destination="ZoG-pA-tA3" id="wU2-CV-Rgg"/>
+                        <outlet property="rentalPriceField" destination="WMf-G3-GJw" id="p8n-ck-gAe"/>
+                        <outlet property="sizeField" destination="DkD-FN-bD2" id="fiO-jz-Kgc"/>
+                        <outlet property="uploadImageButton" destination="tB3-4d-Ucj" id="KtL-D3-q3y"/>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="2uv-9y-dyp" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
@@ -1118,6 +1121,9 @@
                                 </constraints>
                                 <fontDescription key="fontDescription" type="system" pointSize="14"/>
                                 <textInputTraits key="textInputTraits" textContentType="name"/>
+                                <connections>
+                                    <action selector="nameField:" destination="sJN-0S-kg9" eventType="editingDidEnd" id="jRg-0K-9zk"/>
+                                </connections>
                             </textField>
                             <textField opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="248" contentHorizontalAlignment="left" contentVerticalAlignment="center" borderStyle="roundedRect" placeholder="Event Date" minimumFontSize="17" translatesAutoresizingMaskIntoConstraints="NO" id="Uif-ys-nUR">
                                 <rect key="frame" x="33.666666666666657" y="156" width="335" height="34"/>
@@ -1223,6 +1229,7 @@
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="sRq-vf-q35" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
+                <exit id="sJN-0S-kg9" userLabel="Exit" sceneMemberID="exit"/>
             </objects>
             <point key="canvasLocation" x="4455" y="40"/>
         </scene>
