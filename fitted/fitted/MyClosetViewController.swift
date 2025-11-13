@@ -6,30 +6,89 @@
 //
 
 import UIKit
-
+import FirebaseAuth
+import FirebaseFirestore
 
 struct ClosetItem {
     let name: String
-    let imageURL: String? // or UIImage if you already have it
+    let imageURL: String?
 }
 
-class MyClosetViewController: UIViewController {
+class MyClosetViewController: UIViewController, UICollectionViewDataSource, UICollectionViewDelegate {
+    
+    @IBOutlet weak var collectionView: UICollectionView! //TODO: actually connect this to the storyboard
+
+    private let db = Firestore.firestore()
+    private var items: [ClosetItem] = []
 
     override func viewDidLoad() {
         super.viewDidLoad()
-
-        // Do any additional setup after loading the view.
+        collectionView.dataSource = self
+        collectionView.delegate = self
+        fetchMyCloset()
     }
     
-
-    /*
-    // MARK: - Navigation
-
-    // In a storyboard-based application, you will often want to do a little preparation before navigation
-    override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
-        // Get the new view controller using segue.destination.
-        // Pass the selected object to the new view controller.
+    private func fetchMyCloset() {
+        guard let uid = Auth.auth().currentUser?.uid else { return }
+        db.collection("users").document(uid).getDocument { [weak self] snap, _ in
+            guard let self = self else { return }
+            guard let data = snap?.data(),
+                  let itemIds = data["my_closet"] as? [String],
+                  !itemIds.isEmpty else {
+                return
+            }
+            self.fetchClosetItems(ids: itemIds)
+        }
     }
-    */
+    
+    private func fetchClosetItems(ids: [String]) {
+        let group = DispatchGroup()
+        var results: [ClosetItem] = []
+
+        for id in ids {
+            group.enter()
+            db.collection("closet_items").document(id).getDocument { snap, _ in
+                if let data = snap?.data() {
+                    let name = data["name"] as? String ?? ""
+                    let imageURL = data["image"] as? String
+                    results.append(ClosetItem(name: name, imageURL: imageURL))
+                }
+                group.leave()
+            }
+        }
+
+        group.notify(queue: .main) {
+            self.items = results
+            self.collectionView.reloadData()
+        }
+    }
+    
+    func collectionView(_ collectionView: UICollectionView,
+                        numberOfItemsInSection section: Int) -> Int {
+        return items.count
+    }
+    
+    func collectionView(_ collectionView: UICollectionView,
+                        cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
+        let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "ClosetItemCell",
+                                                      for: indexPath) as! ClosetItemCell
+        let item = items[indexPath.item]
+        cell.titleLabel.text = item.name
+        cell.imageView.image = nil
+
+        if let urlString = item.imageURL, let url = URL(string: urlString) {
+            let targetIndexPath = indexPath
+            URLSession.shared.dataTask(with: url) { data, _, _ in
+                if let data = data, let img = UIImage(data: data) {
+                    DispatchQueue.main.async {
+                        if let visible = collectionView.cellForItem(at: targetIndexPath) as? ClosetItemCell {
+                            visible.imageView.image = img
+                        }
+                    }
+                }
+            }.resume()
+        }
+        return cell
+    }
 
 }
