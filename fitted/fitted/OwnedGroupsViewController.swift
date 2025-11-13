@@ -260,6 +260,13 @@ class OwnedGroupsViewController: UIViewController, UICollectionViewDataSource, U
 
     func collectionView(_ collectionView: UICollectionView,
                         didSelectItemAt indexPath: IndexPath) {
-        
+        let selectedGroup = groups[indexPath.item]
+
+        let sb = UIStoryboard(name: "Main", bundle: nil)
+        if let vc = sb.instantiateViewController(withIdentifier: "GroupSettingsViewController") as? GroupSettingsViewController {
+            vc.group = selectedGroup
+            navigationController?.pushViewController(vc, animated: true)
+        }
     }
+
 }

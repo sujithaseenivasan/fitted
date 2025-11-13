@@ -687,7 +687,7 @@
         <!--Group Settings View Controller-->
         <scene sceneID="L0J-76-anD">
             <objects>
-                <viewController storyboardIdentifier="GroupSettingsVC" id="8lh-ya-AmJ" customClass="GroupSettingsViewController" customModule="fitted" customModuleProvider="target" sceneMemberID="viewController">
+                <viewController storyboardIdentifier="GroupSettingsViewController" id="8lh-ya-AmJ" customClass="GroupSettingsViewController" customModule="fitted" customModuleProvider="target" sceneMemberID="viewController">
                     <view key="view" contentMode="scaleToFill" id="fyw-lI-eoK">
                         <rect key="frame" x="0.0" y="0.0" width="402" height="874"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
@@ -747,12 +747,18 @@
                                 <color key="tintColor" name="SecondaryPink"/>
                                 <state key="normal" title="Button"/>
                                 <buttonConfiguration key="configuration" style="plain" image="greaterthan" catalog="system" title=""/>
+                                <connections>
+                                    <action selector="nameChangePressed:" destination="8lh-ya-AmJ" eventType="touchUpInside" id="tEc-BH-0cP"/>
+                                </connections>
                             </button>
                             <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="1zs-Xy-tgf">
                                 <rect key="frame" x="336" y="418.33333333333331" width="44" height="34.333333333333314"/>
                                 <color key="tintColor" name="SecondaryPink"/>
                                 <state key="normal" title="Button"/>
                                 <buttonConfiguration key="configuration" style="plain" image="greaterthan" catalog="system" title=""/>
+                                <connections>
+                                    <action selector="IdChangePressed:" destination="8lh-ya-AmJ" eventType="touchUpInside" id="uvA-Sj-Mve"/>
+                                </connections>
                             </button>
                             <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="S1S-bW-Nry">
                                 <rect key="frame" x="120" y="582" width="162" height="35"/>
@@ -767,6 +773,9 @@
                                 <color key="tintColor" name="SecondaryPink"/>
                                 <state key="normal" title="Button"/>
                                 <buttonConfiguration key="configuration" style="plain" image="greaterthan" catalog="system" title=""/>
+                                <connections>
+                                    <action selector="passChangePressed:" destination="8lh-ya-AmJ" eventType="touchUpInside" id="r5Y-NY-l9M"/>
+                                </connections>
                             </button>
                         </subviews>
                         <viewLayoutGuide key="safeArea" id="ysC-P3-MPr"/>
@@ -913,6 +922,9 @@
                         </constraints>
                     </view>
                     <navigationItem key="navigationItem" id="4gs-ii-r2J"/>
+                    <connections>
+                        <outlet property="collectionView" destination="rA2-Di-ajB" id="pum-oU-L3z"/>
+                    </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="lm4-V7-eVC" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
             </objects>
