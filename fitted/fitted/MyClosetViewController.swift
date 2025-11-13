@@ -17,7 +17,7 @@ struct ClosetItem {
 
 class MyClosetViewController: UIViewController, UICollectionViewDataSource, UICollectionViewDelegate, UICollectionViewDelegateFlowLayout {
     
-    @IBOutlet weak var collectionView: UICollectionView! //TODO: actually connect this to the storyboard
+    @IBOutlet weak var collectionView: UICollectionView!
 
     private let db = Firestore.firestore()
     private var items: [ClosetItem] = []
@@ -29,6 +29,10 @@ class MyClosetViewController: UIViewController, UICollectionViewDataSource, UICo
         collectionView.dataSource = self
         collectionView.delegate = self
         fetchMyCloset()
+        
+        let longPress = UILongPressGestureRecognizer(target: self,
+                                                     action: #selector(handleLongPress(_:)))
+        collectionView.addGestureRecognizer(longPress)
     }
     
     override func viewWillAppear(_ animated: Bool) {
@@ -159,7 +163,55 @@ class MyClosetViewController: UIViewController, UICollectionViewDataSource, UICo
 
         present(alert, animated: true)
     }
-
-
+    
+    @objc private func handleLongPress(_ gesture: UILongPressGestureRecognizer) {
+        // only trigger once when the press begins
+        if gesture.state != .began { return }
+        
+        let point = gesture.location(in: collectionView)
+        guard let indexPath = collectionView.indexPathForItem(at: point) else { return }
+        
+        let item = items[indexPath.item]
+        
+        let alert = UIAlertController(
+            title: "Delete Item",
+            message: "Are you sure you want to delete \"\(item.name)\" from your closet?",
+            preferredStyle: .alert
+        )
+        
+        alert.addAction(UIAlertAction(title: "Cancel", style: .cancel, handler: nil))
+        
+        alert.addAction(UIAlertAction(title: "Delete", style: .destructive) { [weak self] _ in
+            self?.deleteItem(at: indexPath)
+        })
+        
+        present(alert, animated: true)
+    }
+    
+    private func deleteItem(at indexPath: IndexPath) {
+        guard let uid = Auth.auth().currentUser?.uid else { return }
+        
+        let item = items[indexPath.item]
+        let itemRef = db.collection("closet_items").document(item.id)
+        let userRef = db.collection("users").document(uid)
+        
+        let batch = db.batch()
+        batch.deleteDocument(itemRef)
+        batch.updateData(["my_closet": FieldValue.arrayRemove([item.id])], forDocument: userRef)
+        
+        batch.commit { [weak self] error in
+            guard let self = self else { return }
+            if let error = error {
+                print("Error deleting item: \(error.localizedDescription)")
+                return
+            }
+            
+            // update local array + UI
+            self.items.remove(at: indexPath.item)
+            self.collectionView.performBatchUpdates({
+                self.collectionView.deleteItems(at: [indexPath])
+            }, completion: nil)
+        }
+    }
 
 }
