@@ -1433,7 +1433,7 @@
                                     <inset key="sectionInset" minX="0.0" minY="0.0" maxX="0.0" maxY="0.0"/>
                                 </collectionViewFlowLayout>
                                 <cells>
-                                    <collectionViewCell opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" id="OJ7-eB-pfH" customClass="EntireClosetCell" customModule="fitted" customModuleProvider="target">
+                                    <collectionViewCell opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" restorationIdentifier="EntireClosetCell" reuseIdentifier="EntireClosetCell" id="OJ7-eB-pfH" customClass="EntireClosetCell" customModule="fitted" customModuleProvider="target">
                                         <rect key="frame" x="0.0" y="0.0" width="148" height="178"/>
                                         <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                                         <collectionViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" insetsLayoutMarginsFromSafeArea="NO" id="iis-XO-DEE">
@@ -1469,6 +1469,48 @@
                                     </collectionViewCell>
                                 </cells>
                             </collectionView>
+                            <stackView opaque="NO" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="F2p-jH-wEs">
+                                <rect key="frame" x="20" y="72" width="362" height="34.333333333333343"/>
+                                <subviews>
+                                    <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="AgP-9d-T5h">
+                                        <rect key="frame" x="0.0" y="0.0" width="90.666666666666671" height="34.333333333333336"/>
+                                        <color key="tintColor" white="0.0" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                        <state key="normal" title="Button"/>
+                                        <buttonConfiguration key="configuration" style="plain" title="Size"/>
+                                        <connections>
+                                            <action selector="sizeButtonTapped:" destination="RZS-Yl-yN0" eventType="touchUpInside" id="eDm-K6-KZ5"/>
+                                        </connections>
+                                    </button>
+                                    <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="HEY-h7-0jO">
+                                        <rect key="frame" x="90.666666666666686" y="0.0" width="90.333333333333314" height="34.333333333333336"/>
+                                        <color key="tintColor" white="0.0" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                        <state key="normal" title="Button"/>
+                                        <buttonConfiguration key="configuration" style="plain" title="Type"/>
+                                        <connections>
+                                            <action selector="typeButtonTapped:" destination="RZS-Yl-yN0" eventType="touchUpInside" id="HKC-sj-oWv"/>
+                                        </connections>
+                                    </button>
+                                    <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="Mt2-0b-Rq2">
+                                        <rect key="frame" x="181" y="0.0" width="90.666666666666686" height="34.333333333333336"/>
+                                        <color key="tintColor" white="0.0" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                        <state key="normal" title="Button"/>
+                                        <buttonConfiguration key="configuration" style="plain" title="Price"/>
+                                        <connections>
+                                            <action selector="priceButtonTapped:" destination="RZS-Yl-yN0" eventType="touchUpInside" id="0Qv-OU-yNI"/>
+                                        </connections>
+                                    </button>
+                                    <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="cS9-si-bfQ">
+                                        <rect key="frame" x="271.66666666666669" y="0.0" width="90.333333333333314" height="34.333333333333336"/>
+                                        <color key="tintColor" white="0.0" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                        <state key="normal" title="Button"/>
+                                        <buttonConfiguration key="configuration" style="plain" title="Color"/>
+                                        <connections>
+                                            <action selector="colorButtonTapped:" destination="RZS-Yl-yN0" eventType="touchUpInside" id="Scr-sN-wIG"/>
+                                        </connections>
+                                    </button>
+                                </subviews>
+                                <color key="tintColor" red="0.62400001289999996" green="0.6589999795" blue="0.50599998239999999" alpha="0.52405886619999997" colorSpace="custom" customColorSpace="sRGB"/>
+                            </stackView>
                         </subviews>
                         <viewLayoutGuide key="safeArea" id="JUD-fW-tUs"/>
                         <color key="backgroundColor" name="PrimaryBackground"/>
@@ -1476,11 +1518,20 @@
                             <constraint firstItem="MEs-5Z-XLI" firstAttribute="leading" secondItem="JUD-fW-tUs" secondAttribute="leading" id="BLq-sl-cKo"/>
                             <constraint firstItem="JUD-fW-tUs" firstAttribute="trailing" secondItem="MEs-5Z-XLI" secondAttribute="trailing" id="CvE-sf-ppv"/>
                             <constraint firstItem="JUD-fW-tUs" firstAttribute="bottom" secondItem="MEs-5Z-XLI" secondAttribute="bottom" id="FaX-OC-1Ca"/>
+                            <constraint firstItem="F2p-jH-wEs" firstAttribute="leading" secondItem="JUD-fW-tUs" secondAttribute="leading" constant="20" id="JRu-pI-gkz"/>
+                            <constraint firstItem="F2p-jH-wEs" firstAttribute="centerX" secondItem="nxA-Eq-vID" secondAttribute="centerX" id="ScS-60-exo"/>
                             <constraint firstItem="MEs-5Z-XLI" firstAttribute="top" secondItem="JUD-fW-tUs" secondAttribute="top" constant="75" id="UmT-n9-hmE"/>
+                            <constraint firstItem="JUD-fW-tUs" firstAttribute="top" secondItem="F2p-jH-wEs" secondAttribute="top" constant="-10" id="YuF-Mi-a7O"/>
+                            <constraint firstItem="JUD-fW-tUs" firstAttribute="trailing" secondItem="F2p-jH-wEs" secondAttribute="trailing" constant="20" id="h1S-dK-ilT"/>
                         </constraints>
                     </view>
                     <connections>
                         <outlet property="collectionView" destination="MEs-5Z-XLI" id="Img-R6-KpS"/>
+                        <outlet property="colorButton" destination="cS9-si-bfQ" id="Zkr-zK-OP3"/>
+                        <outlet property="filterBarContainer" destination="nxA-Eq-vID" id="rAE-Rg-5kh"/>
+                        <outlet property="priceButton" destination="Mt2-0b-Rq2" id="y4Q-VR-Vlv"/>
+                        <outlet property="sizeButton" destination="AgP-9d-T5h" id="OCG-Q2-ruK"/>
+                        <outlet property="typeButton" destination="HEY-h7-0jO" id="rSu-cD-AaN"/>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="eEw-DV-aj2" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>

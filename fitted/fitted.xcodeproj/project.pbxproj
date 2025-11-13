@@ -12,12 +12,10 @@
 		73ACA3842E974CA200067AFB /* FirebaseDatabase in Frameworks */ = {isa = PBXBuildFile; productRef = 73ACA3832E974CA200067AFB /* FirebaseDatabase */; };
 		73ACA3862E974CA200067AFB /* FirebaseFirestore in Frameworks */ = {isa = PBXBuildFile; productRef = 73ACA3852E974CA200067AFB /* FirebaseFirestore */; };
 		73ACA3882E974CA200067AFB /* FirebaseStorage in Frameworks */ = {isa = PBXBuildFile; productRef = 73ACA3872E974CA200067AFB /* FirebaseStorage */; };
-		73E3BAF32EC59D5A00FEFADF /* CreateGroupViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 73E3BAF22EC59D5A00FEFADF /* CreateGroupViewController.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
 		7397DF3E2E8F043400CE03BF /* fitted.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = fitted.app; sourceTree = BUILT_PRODUCTS_DIR; };
-		73E3BAF22EC59D5A00FEFADF /* CreateGroupViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = CreateGroupViewController.swift; path = fitted/CreateGroupViewController.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
@@ -60,7 +58,6 @@
 		7397DF352E8F043400CE03BF = {
 			isa = PBXGroup;
 			children = (
-				73E3BAF22EC59D5A00FEFADF /* CreateGroupViewController.swift */,
 				7397DF402E8F043400CE03BF /* fitted */,
 				7397DF3F2E8F043400CE03BF /* Products */,
 			);
@@ -156,7 +153,6 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				73E3BAF32EC59D5A00FEFADF /* CreateGroupViewController.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
