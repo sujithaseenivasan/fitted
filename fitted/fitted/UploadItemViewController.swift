@@ -201,7 +201,7 @@ class UploadItemViewController: UIViewController, UIPickerViewDelegate, UIPicker
                                                    message: "Your item has been added to My Closet.",
                                                    preferredStyle: .alert)
                         ac.addAction(UIAlertAction(title: "OK", style: .default) { _ in
-                            self.navigationController?.popViewController(animated: true)
+                            self.dismiss(animated: true)
                         })
                         self.present(ac, animated: true)
                     }
