@@ -11,6 +11,9 @@ class ClosetFeedViewController: UIViewController {
 
     @IBOutlet weak var containerView: UIView!
     @IBOutlet weak var segmentedControl: UISegmentedControl!
+    
+    var eventId: String!
+    
     override func viewDidLoad() {
         super.viewDidLoad()
 

@@ -10,6 +10,7 @@ import FirebaseFirestore
 import FirebaseStorage
 
 struct Event {
+    let id: String
     let title: String
     let description: String
     let location: String
@@ -17,7 +18,7 @@ struct Event {
     let imageURL: String?
 }
 
-class EventLineupViewController: UIViewController, UITableViewDataSource {
+class EventLineupViewController: UIViewController, UITableViewDataSource, UITableViewDelegate {
     
 
     @IBOutlet weak var tableView: UITableView!
@@ -29,6 +30,7 @@ class EventLineupViewController: UIViewController, UITableViewDataSource {
     override func viewDidLoad() {
         super.viewDidLoad()
         tableView.dataSource = self
+        tableView.delegate = self
         fetchEvents()
         navigationController?.navigationBar.tintColor = UIColor(named: "MainText")
         
@@ -67,6 +69,7 @@ class EventLineupViewController: UIViewController, UITableViewDataSource {
                     guard let doc = docSnapshot, doc.exists else { return }
                     let d = doc.data() ?? [:]
                     let event = Event(
+                        id: doc.documentID,
                         title: d["event_name"] as? String ?? "",
                         description: d["description"] as? String ?? "",
                         location: d["location"] as? String ?? "",
@@ -144,6 +147,17 @@ class EventLineupViewController: UIViewController, UITableViewDataSource {
 
         return cell
     }
+    
+    func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+        let selectedEvent = events[indexPath.row]
+
+        let sb = UIStoryboard(name: "Main", bundle: nil)
+        if let vc = sb.instantiateViewController(withIdentifier: "ClosetFeedViewController") as? ClosetFeedViewController {
+            vc.eventId = selectedEvent.id          // pass the event’s document ID
+            navigationController?.pushViewController(vc, animated: true)
+        }
+    }
+
     
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
             guard segue.identifier == "createEventSegue" else { return }

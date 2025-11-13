@@ -1236,7 +1236,7 @@
         <!--Closet Feed View Controller-->
         <scene sceneID="zns-oz-NC1">
             <objects>
-                <viewController id="qTY-19-L3d" customClass="ClosetFeedViewController" customModule="fitted" customModuleProvider="target" sceneMemberID="viewController">
+                <viewController storyboardIdentifier="ClosetFeedViewController" id="qTY-19-L3d" customClass="ClosetFeedViewController" customModule="fitted" customModuleProvider="target" sceneMemberID="viewController">
                     <view key="view" contentMode="scaleToFill" id="MbS-Qm-lql">
                         <rect key="frame" x="0.0" y="0.0" width="402" height="874"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
