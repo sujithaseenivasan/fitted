@@ -32,7 +32,12 @@ class ClosetFeedListViewController: UIViewController, UITableViewDataSource, UIT
         fetchEventItems()
     }
     
-    private func fetchEventItems() {
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        fetchEventItems()
+    }
+    
+    func fetchEventItems() {
         db.collection("events").document(eventId).getDocument { [weak self] snap, err in
             guard let self = self else { return }
             if let data = snap?.data(),

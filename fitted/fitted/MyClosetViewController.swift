@@ -10,6 +10,7 @@ import FirebaseAuth
 import FirebaseFirestore
 
 struct ClosetItem {
+    let id: String
     let name: String
     let imageURL: String?
 }
@@ -20,6 +21,8 @@ class MyClosetViewController: UIViewController, UICollectionViewDataSource, UICo
 
     private let db = Firestore.firestore()
     private var items: [ClosetItem] = []
+    var selectionEventId: String?
+    var onItemAddedToEvent: (() -> Void)?
 
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -61,7 +64,7 @@ class MyClosetViewController: UIViewController, UICollectionViewDataSource, UICo
                 if let data = snap?.data() {
                     let name = data["name"] as? String ?? ""
                     let imageURL = data["image"] as? String
-                    results.append(ClosetItem(name: name, imageURL: imageURL))
+                    results.append(ClosetItem(id: id, name: name, imageURL: imageURL))
                 }
                 group.leave()
             }
@@ -116,6 +119,47 @@ class MyClosetViewController: UIViewController, UICollectionViewDataSource, UICo
         // image square + extra space for label
         return CGSize(width: itemWidth, height: itemWidth + 50)
     }
+    
+    func collectionView(_ collectionView: UICollectionView,
+                        didSelectItemAt indexPath: IndexPath) {
+
+        let item = items[indexPath.item]
+
+        guard let eventId = selectionEventId else {
+            return   // normal MyCloset behavior
+        }
+
+        let alert = UIAlertController(
+            title: "Add Item?",
+            message: "Upload \"\(item.name)\" to this event?",
+            preferredStyle: .alert
+        )
+
+        alert.addAction(UIAlertAction(title: "Cancel", style: .cancel, handler: nil))
+
+        alert.addAction(UIAlertAction(title: "Add", style: .default) { [weak self] _ in
+            guard let self = self else { return }
+
+            self.db.collection("events").document(eventId)
+                .setData([
+                    "event_items": FieldValue.arrayUnion([item.id])
+                ], merge: true) { error in
+                    if let error = error {
+                        print("Failed to add item to event: \(error.localizedDescription)")
+                        return
+                    }
+
+                    // tell whoever presented this VC that an item was added
+                    self.onItemAddedToEvent?()
+
+                    // dismiss this picker
+                    self.dismiss(animated: true)
+                }
+        })
+
+        present(alert, animated: true)
+    }
+
 
 
 }

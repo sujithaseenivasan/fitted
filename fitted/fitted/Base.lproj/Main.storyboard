@@ -839,7 +839,7 @@
         <!--My Closet View Controller-->
         <scene sceneID="CmI-o4-Vvg">
             <objects>
-                <viewController id="1rO-SO-BVX" customClass="MyClosetViewController" customModule="fitted" customModuleProvider="target" sceneMemberID="viewController">
+                <viewController storyboardIdentifier="MyClosetViewController" id="1rO-SO-BVX" customClass="MyClosetViewController" customModule="fitted" customModuleProvider="target" sceneMemberID="viewController">
                     <view key="view" contentMode="scaleToFill" id="leV-Ch-0dw">
                         <rect key="frame" x="0.0" y="0.0" width="402" height="874"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
@@ -1260,12 +1260,23 @@
                                 <rect key="frame" x="0.0" y="141" width="402" height="733"/>
                                 <color key="backgroundColor" systemColor="systemBackgroundColor"/>
                             </view>
+                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="iRk-ts-5sz">
+                                <rect key="frame" x="344" y="62" width="50" height="35"/>
+                                <color key="tintColor" name="SecondaryPink"/>
+                                <state key="normal" title="Button"/>
+                                <buttonConfiguration key="configuration" style="plain" image="plus.circle" catalog="system"/>
+                                <connections>
+                                    <action selector="addItemButtonTapped:" destination="qTY-19-L3d" eventType="touchUpInside" id="IVN-OL-fiR"/>
+                                </connections>
+                            </button>
                         </subviews>
                         <viewLayoutGuide key="safeArea" id="cPl-NJ-AT0"/>
                         <color key="backgroundColor" name="PrimaryBackground"/>
                         <constraints>
                             <constraint firstItem="gM3-4C-lDJ" firstAttribute="top" secondItem="ag8-jn-ifo" secondAttribute="bottom" constant="8" symbolic="YES" id="AIO-7v-yQ3"/>
+                            <constraint firstItem="iRk-ts-5sz" firstAttribute="top" secondItem="cPl-NJ-AT0" secondAttribute="top" id="Hu1-Cu-AHE"/>
                             <constraint firstItem="ag8-jn-ifo" firstAttribute="leading" secondItem="cPl-NJ-AT0" secondAttribute="leading" constant="16" id="OSA-qA-qdH"/>
+                            <constraint firstItem="iRk-ts-5sz" firstAttribute="leading" secondItem="cPl-NJ-AT0" secondAttribute="leading" constant="344" id="QVk-hS-oRb"/>
                             <constraint firstItem="gM3-4C-lDJ" firstAttribute="trailing" secondItem="cPl-NJ-AT0" secondAttribute="trailing" id="YL8-e5-wZa"/>
                             <constraint firstItem="ag8-jn-ifo" firstAttribute="top" secondItem="cPl-NJ-AT0" secondAttribute="top" constant="40" id="grS-d1-GHB"/>
                             <constraint firstAttribute="bottom" secondItem="gM3-4C-lDJ" secondAttribute="bottom" id="jVS-WM-D08"/>

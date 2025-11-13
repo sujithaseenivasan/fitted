@@ -13,8 +13,9 @@ class ClosetFeedViewController: UIViewController {
     @IBOutlet weak var segmentedControl: UISegmentedControl!
     
     private var currentVC: UIViewController?
-
     
+    weak var closetFeedListVC: ClosetFeedListViewController?
+
     var eventId: String!
     
     override func viewDidLoad() {
@@ -22,6 +23,12 @@ class ClosetFeedViewController: UIViewController {
         loadSelectedSegment()
         // Do any additional setup after loading the view.
     }
+    
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        loadSelectedSegment()
+    }
+    
     
     @IBAction func segmentChanged(_ sender: Any) {
         loadSelectedSegment()
@@ -61,15 +68,29 @@ class ClosetFeedViewController: UIViewController {
         currentVC = vc
     }
 
-    
-    /*
-    // MARK: - Navigation
+    @IBAction func addItemButtonTapped(_ sender: Any) {
+        let sb = UIStoryboard(name: "Main", bundle: nil)
+        guard let vc = sb.instantiateViewController(
+            withIdentifier: "MyClosetViewController"
+        ) as? MyClosetViewController else { return }
 
-    // In a storyboard-based application, you will often want to do a little preparation before navigation
-    override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
-        // Get the new view controller using segue.destination.
-        // Pass the selected object to the new view controller.
+        vc.selectionEventId = eventId
+
+        // when an item is added, refresh the list
+        vc.onItemAddedToEvent = { [weak self] in
+            self?.closetFeedListVC?.fetchEventItems()
+        }
+
+        let nav = UINavigationController(rootViewController: vc)
+        present(nav, animated: true)
     }
-    */
+    
+    override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
+        // this is the embed segue from the container view
+        if let listVC = segue.destination as? ClosetFeedListViewController {
+            closetFeedListVC = listVC
+            listVC.eventId = eventId   // make sure it knows which event
+        }
+    }
 
 }
