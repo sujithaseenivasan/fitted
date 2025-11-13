@@ -157,7 +157,7 @@ class EventLineupViewController: UIViewController, UITableViewDataSource, UITabl
             navigationController?.pushViewController(vc, animated: true)
         }
     }
-
+    
     
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
             guard segue.identifier == "createEventSegue" else { return }

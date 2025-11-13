@@ -10,6 +10,8 @@ import UIKit
 class EntireClosetGridViewController: UIViewController {
 
     @IBOutlet weak var collectionView: UICollectionView!
+    var eventId: String!
+    
     override func viewDidLoad() {
         super.viewDidLoad()
 

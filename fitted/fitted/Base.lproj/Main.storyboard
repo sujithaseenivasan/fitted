@@ -1291,7 +1291,7 @@
                                 <rect key="frame" x="0.0" y="62" width="402" height="778"/>
                                 <color key="backgroundColor" name="PrimaryBackground"/>
                                 <prototypes>
-                                    <tableViewCell clipsSubviews="YES" contentMode="scaleToFill" insetsLayoutMarginsFromSafeArea="NO" selectionStyle="blue" hidesAccessoryWhenEditing="NO" indentationLevel="1" indentationWidth="0.0" rowHeight="204" id="x9b-Oh-1nh" customClass="ClosetFeedCell" customModule="fitted" customModuleProvider="target">
+                                    <tableViewCell clipsSubviews="YES" contentMode="scaleToFill" insetsLayoutMarginsFromSafeArea="NO" selectionStyle="blue" hidesAccessoryWhenEditing="NO" indentationLevel="1" indentationWidth="0.0" reuseIdentifier="ClosetFeedCell" rowHeight="204" id="x9b-Oh-1nh" customClass="ClosetFeedCell" customModule="fitted" customModuleProvider="target">
                                         <rect key="frame" x="0.0" y="50" width="402" height="204"/>
                                         <autoresizingMask key="autoresizingMask"/>
                                         <tableViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" insetsLayoutMarginsFromSafeArea="NO" tableViewCell="x9b-Oh-1nh" id="PiG-PZ-1cJ">
