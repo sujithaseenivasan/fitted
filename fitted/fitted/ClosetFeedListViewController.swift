@@ -17,10 +17,18 @@ class ClosetFeedListViewController: UIViewController, UITableViewDataSource, UIT
     private let db = Firestore.firestore()
     private var items: [[String: Any]] = []  //raw closet item data
     
+    private var userNameCache: [String: String] = [:]  // [uid: name]
+    private let usersRef = Firestore.firestore().collection("users")
+
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         tableView.delegate = self
         tableView.dataSource = self
+        
+        tableView.rowHeight = UITableView.automaticDimension
+        tableView.estimatedRowHeight = 200
+        
         fetchEventItems()
     }
     
@@ -68,7 +76,6 @@ class ClosetFeedListViewController: UIViewController, UITableViewDataSource, UIT
                                                  for: indexPath) as! ClosetFeedCell
         let item = items[indexPath.row]
 
-        cell.nameLabel.text = item["name"] as? String
         cell.brandLabel.text = item["brand"] as? String
         cell.sizeLabel.text = item["size"] as? String
 
@@ -77,9 +84,40 @@ class ClosetFeedListViewController: UIViewController, UITableViewDataSource, UIT
         } else {
             cell.priceLabel.text = ""
         }
+        
+        if let ownerUID = item["owner"] as? String {
 
-        // Title is optional (some people use name only)
-        cell.titleLabel.text = item["clothing_type"] as? String
+            if let cachedName = userNameCache[ownerUID] {
+                cell.nameLabel.text = cachedName
+            } else {
+                usersRef.document(ownerUID).getDocument { [weak self] snap, _ in
+                    guard let self = self else { return }
+
+                    let data = snap?.data() ?? [:]
+                    let first = data["firstName"] as? String ?? ""
+                    let last  = data["lastName"]  as? String ?? ""
+
+                    var name = [first, last].filter { !$0.isEmpty }.joined(separator: " ")
+                    if name.isEmpty {
+                        // optional: fall back to email if you want something more helpful than "Unknown"
+                        name = data["email"] as? String ?? "Unknown"
+                    }
+
+                    // cache it
+                    self.userNameCache[ownerUID] = name
+
+                    DispatchQueue.main.async {
+                        if let visible = tableView.cellForRow(at: indexPath) as? ClosetFeedCell {
+                            visible.nameLabel.text = name
+                        }
+                    }
+                }
+            }
+        }
+
+
+        // title
+        cell.titleLabel.text = item["name"] as? String ?? ""
 
         // Load the item image if stored as a URL string
         if let urlString = item["image"] as? String,
@@ -100,6 +138,11 @@ class ClosetFeedListViewController: UIViewController, UITableViewDataSource, UIT
         }
 
         return cell
+    }
+    
+    func tableView(_ tableView: UITableView,
+                   heightForRowAt indexPath: IndexPath) -> CGFloat {
+        return 200  
     }
 
 }
