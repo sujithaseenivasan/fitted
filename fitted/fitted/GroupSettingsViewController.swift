@@ -137,6 +137,10 @@ class GroupSettingsViewController: UIViewController {
     }
     
     @IBAction func manageButtonPressed(_ sender: Any) {
+        let sb = UIStoryboard(name: "Main", bundle: nil)
+        let vc = sb.instantiateViewController(withIdentifier: "ManageMembersViewController") as! ManageMembersViewController
+        vc.groupId = group.id      // ← pass the group ID
+        navigationController?.pushViewController(vc, animated: true)
     }
     
     @IBAction func editImagePressed(_ sender: Any) {
