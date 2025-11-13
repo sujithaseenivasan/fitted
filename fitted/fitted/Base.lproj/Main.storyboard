@@ -761,7 +761,7 @@
                                 </connections>
                             </button>
                             <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="S1S-bW-Nry">
-                                <rect key="frame" x="120" y="582" width="162" height="35"/>
+                                <rect key="frame" x="120" y="605" width="162" height="35"/>
                                 <state key="normal" title="Button"/>
                                 <buttonConfiguration key="configuration" style="plain" title="Manage Members"/>
                                 <connections>
@@ -792,7 +792,7 @@
                             <constraint firstItem="0Dq-hx-vxJ" firstAttribute="top" secondItem="ysC-P3-MPr" secondAttribute="top" constant="307" id="JwH-Jn-ulL"/>
                             <constraint firstItem="RlI-Vo-gGN" firstAttribute="centerY" secondItem="0Dq-hx-vxJ" secondAttribute="centerY" id="MMI-bC-0Jo"/>
                             <constraint firstItem="1zs-Xy-tgf" firstAttribute="centerY" secondItem="EfN-rm-13s" secondAttribute="centerY" id="N9o-pV-ocS"/>
-                            <constraint firstItem="ysC-P3-MPr" firstAttribute="bottom" secondItem="S1S-bW-Nry" secondAttribute="bottom" constant="223" id="Q2D-bV-HjV"/>
+                            <constraint firstItem="ysC-P3-MPr" firstAttribute="bottom" secondItem="S1S-bW-Nry" secondAttribute="bottom" constant="200" id="Q2D-bV-HjV"/>
                             <constraint firstItem="Yfc-bG-l5Q" firstAttribute="top" secondItem="EfN-rm-13s" secondAttribute="bottom" constant="35" id="SiS-AM-flu"/>
                             <constraint firstItem="ysC-P3-MPr" firstAttribute="trailing" secondItem="UnU-Nx-waN" secondAttribute="trailing" constant="22" id="UOr-Nx-tOB"/>
                             <constraint firstItem="EfN-rm-13s" firstAttribute="top" secondItem="0Dq-hx-vxJ" secondAttribute="bottom" constant="35" id="cZa-ZV-ENr"/>

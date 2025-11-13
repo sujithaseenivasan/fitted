@@ -28,6 +28,12 @@ class MyClosetViewController: UIViewController, UICollectionViewDataSource, UICo
         fetchMyCloset()
     }
     
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        fetchMyCloset()
+    }
+
+    
     private func fetchMyCloset() {
         guard let uid = Auth.auth().currentUser?.uid else { return }
         db.collection("users").document(uid).getDocument { [weak self] snap, _ in
@@ -35,11 +41,15 @@ class MyClosetViewController: UIViewController, UICollectionViewDataSource, UICo
             guard let data = snap?.data(),
                   let itemIds = data["my_closet"] as? [String],
                   !itemIds.isEmpty else {
+                // no items -> clear and reload
+                self.items = []
+                self.collectionView.reloadData()
                 return
             }
             self.fetchClosetItems(ids: itemIds)
         }
     }
+
     
     private func fetchClosetItems(ids: [String]) {
         let group = DispatchGroup()
