@@ -14,7 +14,7 @@ struct ClosetItem {
     let imageURL: String?
 }
 
-class MyClosetViewController: UIViewController, UICollectionViewDataSource, UICollectionViewDelegate {
+class MyClosetViewController: UIViewController, UICollectionViewDataSource, UICollectionViewDelegate, UICollectionViewDelegateFlowLayout {
     
     @IBOutlet weak var collectionView: UICollectionView! //TODO: actually connect this to the storyboard
 
@@ -90,5 +90,22 @@ class MyClosetViewController: UIViewController, UICollectionViewDataSource, UICo
         }
         return cell
     }
+    
+    func collectionView(_ collectionView: UICollectionView,
+                        layout collectionViewLayout: UICollectionViewLayout,
+                        sizeForItemAt indexPath: IndexPath) -> CGSize {
+
+        let itemsPerRow: CGFloat = 3
+        let padding: CGFloat = 16   // side spacing
+        let interItemSpacing: CGFloat = 12
+
+        let totalHorizontalPadding = padding * 2 + interItemSpacing * (itemsPerRow - 1)
+        let availableWidth = collectionView.bounds.width - totalHorizontalPadding
+        let itemWidth = floor(availableWidth / itemsPerRow)
+
+        // image square + extra space for label
+        return CGSize(width: itemWidth, height: itemWidth + 50)
+    }
+
 
 }
