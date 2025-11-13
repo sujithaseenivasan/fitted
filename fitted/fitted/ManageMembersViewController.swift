@@ -26,6 +26,8 @@ class ManageMembersViewController: UIViewController, UITableViewDataSource, UITa
         super.viewDidLoad()
         tableView.dataSource = self
         tableView.delegate = self
+        tableView.rowHeight = 72  // or whatever height you want
+        tableView.tableFooterView = UIView()
         fetchMembers()
     }
     
