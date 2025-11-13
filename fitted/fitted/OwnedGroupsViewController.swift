@@ -1,54 +1,51 @@
 //
-//  ClosetShareGroupsViewController.swift
+//  OwnedGroupsViewController.swift
 //  fitted
 //
-//  Created by Sarah Neville on 10/6/25.
+//  Created by Sujitha Seenivasan on 11/12/25.
 //
 
 import UIKit
 import FirebaseFirestore
-import FirebaseCore
 import FirebaseAuth
 import FirebaseStorage
 
-class ClosetShareGroupsViewController: UIViewController, UICollectionViewDataSource, UICollectionViewDelegateFlowLayout {
-    
+class OwnedGroupsViewController: UIViewController, UICollectionViewDataSource, UICollectionViewDelegateFlowLayout {
 
-    @IBOutlet weak var joinGroupButton: UIButton!
     @IBOutlet weak var collectionView: UICollectionView!
-    
+
     private var groups: [Group] = []
     private let db = Firestore.firestore()
     private let reuseIdentifier = "GroupCardCell"
-    
+
     override func viewDidLoad() {
         super.viewDidLoad()
+
         collectionView.dataSource = self
         collectionView.delegate = self
-        
-        //pacing so last cell isn't under tab bar
+
+        // spacing so last cell isn't under tab bar
         collectionView.contentInset = UIEdgeInsets(top: 16, left: 0, bottom: 80, right: 0)
 
-        fetchGroups()
-    }
-    
-    override func viewWillAppear(_ animated: Bool) {
-        super.viewWillAppear(animated)
-        fetchGroups()   // refresh list every time user returns
+        fetchOwnedGroups()
     }
 
-    
-    //fetches all documents in "groups" collection in firebase
-    func fetchGroups() {
-        // Must have a signed-in user
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        fetchOwnedGroups()   // refresh every time user comes back
+    }
+
+    // MARK: - Firestore fetch
+
+    func fetchOwnedGroups() {
         guard let uid = Auth.auth().currentUser?.uid else {
-            print("No signed-in user; cannot load joined groups.")
-            self.groups = []
-            self.collectionView.reloadData()
+            print("No signed-in user; cannot load owned groups.")
+            groups = []
+            collectionView.reloadData()
             return
         }
 
-        // 1) Read the user's joinedGroups (array of group doc IDs)
+        // 1) Read the user's owned_groups (array of group doc IDs)
         db.collection("users").document(uid).getDocument { [weak self] snap, err in
             guard let self = self else { return }
 
@@ -60,20 +57,19 @@ class ClosetShareGroupsViewController: UIViewController, UICollectionViewDataSou
             }
 
             let data = snap?.data() ?? [:]
-            let joinedIds = data["joinedGroups"] as? [String] ?? []   // ← field name per your schema
-            guard !joinedIds.isEmpty else {
-                // User hasn't joined any groups
+            let ownedIds = data["owned_groups"] as? [String] ?? []
+            guard !ownedIds.isEmpty else {
                 self.groups = []
                 self.collectionView.reloadData()
                 return
             }
 
-            // 2) Fetch those group docs by ID (batch in chunks of ≤10 for 'in' queries)
+            // 2) Fetch those group docs by ID (chunk into batches of ≤ 10 for 'in' queries)
             var loaded: [Group] = []
             let dispatchGroup = DispatchGroup()
 
-            let chunks: [[String]] = stride(from: 0, to: joinedIds.count, by: 10).map {
-                Array(joinedIds[$0..<min($0 + 10, joinedIds.count)])
+            let chunks: [[String]] = stride(from: 0, to: ownedIds.count, by: 10).map {
+                Array(ownedIds[$0 ..< min($0 + 10, ownedIds.count)])
             }
 
             for chunk in chunks {
@@ -82,7 +78,7 @@ class ClosetShareGroupsViewController: UIViewController, UICollectionViewDataSou
                     .whereField(FieldPath.documentID(), in: chunk)
                     .getDocuments { snap, err in
                         if let err = err {
-                            print("Error fetching groups chunk: \(err.localizedDescription)")
+                            print("Error fetching owned groups chunk: \(err.localizedDescription)")
                         } else if let docs = snap?.documents {
                             for doc in docs {
                                 if let g = Group(id: doc.documentID, dict: doc.data()) {
@@ -94,7 +90,6 @@ class ClosetShareGroupsViewController: UIViewController, UICollectionViewDataSou
                     }
             }
 
-            // 3) When all chunks complete, sort and reload UI
             dispatchGroup.notify(queue: .main) {
                 self.groups = loaded.sorted {
                     $0.name.localizedCaseInsensitiveCompare($1.name) == .orderedAscending
@@ -104,7 +99,8 @@ class ClosetShareGroupsViewController: UIViewController, UICollectionViewDataSou
         }
     }
 
-    
+    // MARK: - Storage image helper
+
     private func loadImage(from storagePath: String, completion: @escaping (UIImage?) -> Void) {
         let storageRef = Storage.storage().reference(forURL: storagePath)
         storageRef.getData(maxSize: 5 * 1024 * 1024) { data, error in
@@ -121,35 +117,37 @@ class ClosetShareGroupsViewController: UIViewController, UICollectionViewDataSou
         }
     }
 
-    
-    func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
+    // MARK: - CollectionView data source
+
+    func collectionView(_ collectionView: UICollectionView,
+                        numberOfItemsInSection section: Int) -> Int {
         return groups.count
     }
-    
-    //dequeue a cell and populate it with group's data
+
     func collectionView(_ collectionView: UICollectionView,
                         cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
-        guard let cell = collectionView.dequeueReusableCell(withReuseIdentifier: reuseIdentifier,
-                                                            for: indexPath) as? GroupCardCell else {
+
+        guard let cell = collectionView.dequeueReusableCell(
+            withReuseIdentifier: reuseIdentifier,
+            for: indexPath
+        ) as? GroupCardCell else {
             return UICollectionViewCell()
         }
 
         let group = groups[indexPath.item]
         cell.titleLabel.text = group.name
 
-        // reset every reuse
+        // reset
         cell.logoImageView.image = nil
         cell.logoImageView.contentMode = .scaleAspectFit
         cell.logoImageView.clipsToBounds = true
 
-        // capture the model id to validate later
         let currentGroupId = group.id
 
         if let path = group.imagePath {
             loadImage(from: path) { [weak self] image in
                 DispatchQueue.main.async {
                     guard let self = self else { return }
-                    // Find the current indexPath for this cell and confirm the model id matches
                     if let visible = collectionView.cellForItem(at: indexPath) as? GroupCardCell,
                        self.groups.indices.contains(indexPath.item),
                        self.groups[indexPath.item].id == currentGroupId {
@@ -162,24 +160,27 @@ class ClosetShareGroupsViewController: UIViewController, UICollectionViewDataSou
         return cell
     }
 
-    
-    //layout one card per row
+    // MARK: - Layout
+
     func collectionView(_ collectionView: UICollectionView,
                         layout collectionViewLayout: UICollectionViewLayout,
                         insetForSectionAt section: Int) -> UIEdgeInsets {
         return UIEdgeInsets(top: 16, left: 16, bottom: 16, right: 16)
     }
-    
+
     func collectionView(_ collectionView: UICollectionView,
                         layout collectionViewLayout: UICollectionViewLayout,
                         sizeForItemAt indexPath: IndexPath) -> CGSize {
-        let insets = self.collectionView(collectionView, layout: collectionViewLayout, insetForSectionAt: indexPath.section)
+        let insets = self.collectionView(collectionView,
+                                         layout: collectionViewLayout,
+                                         insetForSectionAt: indexPath.section)
         let width = collectionView.bounds.width - (insets.left + insets.right)
         let height: CGFloat = 200
         return CGSize(width: width, height: height)
     }
-    
-    // iOS 13+
+
+    // MARK: - Context menu for delete
+
     func collectionView(_ collectionView: UICollectionView,
                         contextMenuConfigurationForItemAt indexPath: IndexPath,
                         point: CGPoint) -> UIContextMenuConfiguration? {
@@ -187,68 +188,78 @@ class ClosetShareGroupsViewController: UIViewController, UICollectionViewDataSou
         let group = groups[indexPath.item]
 
         return UIContextMenuConfiguration(identifier: nil, previewProvider: nil) { _ in
-            let leave = UIAction(
-                title: "Leave Group",
-                image: UIImage(systemName: "person.crop.circle.badge.minus"),
+            let delete = UIAction(
+                title: "Delete Group",
+                image: UIImage(systemName: "trash"),
                 attributes: .destructive
             ) { _ in
-                self.confirmLeave(group: group, indexPath: indexPath)
+                self.confirmDelete(group: group, indexPath: indexPath)
             }
-            return UIMenu(children: [leave])
+            return UIMenu(children: [delete])
         }
     }
-    
-    private func confirmLeave(group: Group, indexPath: IndexPath) {
+
+    private func confirmDelete(group: Group, indexPath: IndexPath) {
         let ac = UIAlertController(
-            title: "Leave “\(group.name)”?",
-            message: "You’ll be removed from this group.",
+            title: "Delete “\(group.name)”?",
+            message: "This will remove the group for all members.",
             preferredStyle: .alert
         )
         ac.addAction(UIAlertAction(title: "Cancel", style: .cancel))
-        ac.addAction(UIAlertAction(title: "Leave", style: .destructive) { _ in
-            self.leave(group: group, indexPath: indexPath)
+        ac.addAction(UIAlertAction(title: "Delete", style: .destructive) { _ in
+            self.delete(group: group, indexPath: indexPath)
         })
         present(ac, animated: true)
     }
 
-    private func leave(group: Group, indexPath: IndexPath) {
+    private func delete(group: Group, indexPath: IndexPath) {
         guard let uid = Auth.auth().currentUser?.uid else { return }
 
-        db.collection("users").document(uid)
-          .updateData(["joinedGroups": FieldValue.arrayRemove([group.id])]) { err in
-            DispatchQueue.main.async {
-                guard err == nil else { print(err!.localizedDescription); return }
+        let groupId = group.id
+        let groupRef = db.collection("groups").document(groupId)
 
-                // Update model
-                self.groups.remove(at: indexPath.item)
-
-                // Hard refresh with animations disabled to avoid the “zoom” flicker
-                UIView.performWithoutAnimation {
-                    self.collectionView.reloadData()
-                    self.collectionView.layoutIfNeeded()
+        // 1) Delete optional image from Storage
+        if let path = group.imagePath {
+            let storageRef = Storage.storage().reference(forURL: path)
+            storageRef.delete { error in
+                if let error = error {
+                    print("Error deleting group image:", error.localizedDescription)
                 }
             }
         }
-    }
-    
-    @IBAction func logoutButtonPressed(_ sender: Any) {
-    do {
-            try Auth.auth().signOut()
-            print("User logged out successfully.")
-            
-            navigationController?.popToRootViewController(animated: true)
 
-        } catch let signOutError as NSError {
-            print("Error signing out:", signOutError.localizedDescription)
+        // 2) Delete group document
+        groupRef.delete { err in
+            if let err = err {
+                print("Error deleting group doc:", err.localizedDescription)
+                return
+            }
+
+            // 3) Remove ID from user's owned_groups
+            self.db.collection("users").document(uid)
+                .updateData(["owned_groups": FieldValue.arrayRemove([groupId])]) { err2 in
+                    if let err2 = err2 {
+                        print("Error updating owned_groups:", err2.localizedDescription)
+                    }
+
+                    // 4) Update local model + UI
+                    DispatchQueue.main.async {
+                        if self.groups.indices.contains(indexPath.item) {
+                            self.groups.remove(at: indexPath.item)
+                        }
+                        UIView.performWithoutAnimation {
+                            self.collectionView.reloadData()
+                            self.collectionView.layoutIfNeeded()
+                        }
+                    }
+                }
         }
     }
-    
-    func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
-        let selectedGroup = groups[indexPath.item]
-        let sb = UIStoryboard(name: "Main", bundle: nil)
-        let vc = sb.instantiateViewController(withIdentifier: "EventLineupViewController") as! EventLineupViewController
-        vc.groupId = selectedGroup.id           // ← pass the group doc ID
-        navigationController?.pushViewController(vc, animated: true)
-    }
 
+    // MARK: - Tap → open group settings
+
+    func collectionView(_ collectionView: UICollectionView,
+                        didSelectItemAt indexPath: IndexPath) {
+        
+    }
 }

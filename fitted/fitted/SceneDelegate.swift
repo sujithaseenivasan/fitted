@@ -54,15 +54,21 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         let appearance = UITabBarAppearance()
         appearance.configureWithOpaqueBackground()
         appearance.backgroundColor = pink
+
         appearance.stackedLayoutAppearance.normal.iconColor = .white
         appearance.stackedLayoutAppearance.normal.titleTextAttributes = [.foregroundColor: UIColor.white]
         appearance.stackedLayoutAppearance.selected.iconColor = .white
         appearance.stackedLayoutAppearance.selected.titleTextAttributes = [.foregroundColor: UIColor.white]
+
         UITabBar.appearance().standardAppearance = appearance
-        if #available(iOS 15.0, *) { UITabBar.appearance().scrollEdgeAppearance = appearance }
-        UITabBar.appearance().tintColor = .white
-        UITabBar.appearance().unselectedItemTintColor = .white
+        if #available(iOS 15.0, *) {
+            UITabBar.appearance().scrollEdgeAppearance = appearance
+        }
+
+        UITabBar.appearance().tintColor = .white           // selected icon/text
+        UITabBar.appearance().unselectedItemTintColor = .white  // unselected icon/text
     }
+
     
 
 

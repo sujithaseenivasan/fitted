@@ -57,6 +57,10 @@ final class UserSettingsViewController: UIViewController {
     private let headerContainer = UIView()
     private let avatarImageView = UIImageView()
     private let editPhotoButton = UIButton(type: .system)
+    private let footerContainer = UIView()
+    private let manageGroupsButton = UIButton(type: .system)
+    private let logoutButton = UIButton(type: .system)
+
 
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -67,8 +71,14 @@ final class UserSettingsViewController: UIViewController {
         tableView.tableFooterView = UIView()
 
         tableView.register(UITableViewCell.self, forCellReuseIdentifier: "SettingsCell") // temp safety
+        
+        tableView.backgroundColor = UIColor(red: 0.99, green: 0.90, blue: 0.93, alpha: 1.0)
+        
+        view.backgroundColor = UIColor(red: 0.99, green: 0.90, blue: 0.93, alpha: 1.0) // soft pink
+            
             
         configureHeader()
+        configureFooter()
         loadProfile()
     }
     
@@ -92,6 +102,19 @@ final class UserSettingsViewController: UIViewController {
             header.frame.size.height = size.height
             tableView.tableHeaderView = header
         }
+        
+        if let footer = tableView.tableFooterView {
+                let targetWidth = tableView.bounds.width
+                let size = footer.systemLayoutSizeFitting(
+                    CGSize(width: targetWidth, height: UIView.layoutFittingCompressedSize.height),
+                    withHorizontalFittingPriority: .required,
+                    verticalFittingPriority: .fittingSizeLevel
+                )
+                if footer.frame.size.height != size.height {
+                    footer.frame.size.height = size.height
+                    tableView.tableFooterView = footer
+                }
+            }
     }
 
 
@@ -167,6 +190,71 @@ final class UserSettingsViewController: UIViewController {
         avatarImageView.isUserInteractionEnabled = true
         avatarImageView.addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(editPhotoTapped)))
     }
+    
+    private func configureFooter() {
+        footerContainer.translatesAutoresizingMaskIntoConstraints = false
+        footerContainer.backgroundColor = UIColor(red: 0.99, green: 0.90, blue: 0.93, alpha: 1.0)
+
+        // Common button style
+        func styleButton(_ button: UIButton, title: String) {
+            button.setTitle(title, for: .normal)
+            button.setTitleColor(.white, for: .normal)
+            button.titleLabel?.font = UIFont.systemFont(ofSize: 16, weight: .semibold)
+            button.backgroundColor = UIColor(red: 0.71, green: 0.78, blue: 0.57, alpha: 1.0) // green like Figma
+            button.layer.cornerRadius = 18
+            button.contentEdgeInsets = UIEdgeInsets(top: 10, left: 24, bottom: 10, right: 24)
+            button.translatesAutoresizingMaskIntoConstraints = false
+        }
+
+        styleButton(manageGroupsButton, title: "Manage Owned Groups")
+        styleButton(logoutButton,       title: "Logout")
+
+        manageGroupsButton.addTarget(self, action: #selector(ownedGroupsTapped), for: .touchUpInside)
+        logoutButton.addTarget(self, action: #selector(logoutTapped), for: .touchUpInside)
+
+        let stack = UIStackView(arrangedSubviews: [manageGroupsButton, logoutButton])
+        stack.axis = .vertical
+        stack.alignment = .center
+        stack.spacing = 16
+        stack.translatesAutoresizingMaskIntoConstraints = false
+
+        footerContainer.addSubview(stack)
+
+        NSLayoutConstraint.activate([
+            stack.topAnchor.constraint(equalTo: footerContainer.topAnchor, constant: 24),
+            stack.centerXAnchor.constraint(equalTo: footerContainer.centerXAnchor),
+            stack.bottomAnchor.constraint(equalTo: footerContainer.bottomAnchor, constant: -24),
+            stack.leadingAnchor.constraint(greaterThanOrEqualTo: footerContainer.leadingAnchor, constant: 32),
+            stack.trailingAnchor.constraint(lessThanOrEqualTo: footerContainer.trailingAnchor, constant: -32),
+
+            manageGroupsButton.widthAnchor.constraint(greaterThanOrEqualToConstant: 220),
+            logoutButton.widthAnchor.constraint(equalTo: manageGroupsButton.widthAnchor)
+        ])
+
+        // Host view for tableFooterView
+        let host = UIView()
+        host.addSubview(footerContainer)
+        footerContainer.translatesAutoresizingMaskIntoConstraints = false
+
+        NSLayoutConstraint.activate([
+            footerContainer.leadingAnchor.constraint(equalTo: host.leadingAnchor),
+            footerContainer.trailingAnchor.constraint(equalTo: host.trailingAnchor),
+            footerContainer.topAnchor.constraint(equalTo: host.topAnchor),
+            footerContainer.bottomAnchor.constraint(equalTo: host.bottomAnchor)
+        ])
+
+        // Initial size
+        let targetWidth = tableView.bounds.width
+        let size = host.systemLayoutSizeFitting(
+            CGSize(width: targetWidth, height: UIView.layoutFittingCompressedSize.height),
+            withHorizontalFittingPriority: .required,
+            verticalFittingPriority: .fittingSizeLevel
+        )
+        host.frame = CGRect(origin: .zero, size: size)
+
+        tableView.tableFooterView = host
+    }
+
 
     // MARK: Load profile
 
@@ -200,6 +288,36 @@ final class UserSettingsViewController: UIViewController {
             DispatchQueue.main.async { self.avatarImageView.image = img }
         }.resume()
     }
+    
+    @objc private func ownedGroupsTapped() {
+        // Instantiate from storyboard by ID
+        if let vc = storyboard?.instantiateViewController(withIdentifier: "OwnedGroupsViewController") {
+            navigationController?.pushViewController(vc, animated: true)
+        } else {
+            print("OwnedGroupsViewController not found – check storyboard ID.")
+        }
+    }
+
+    @objc private func logoutTapped() {
+        do {
+                try Auth.auth().signOut()
+                print("User logged out successfully.")
+
+                // Reset root to Login screen
+                let storyboard = UIStoryboard(name: "Main", bundle: nil)
+                let loginVC = storyboard.instantiateViewController(withIdentifier: "LoginViewControllerID")
+
+                if let scene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
+                   let window = scene.windows.first {
+                    window.rootViewController = loginVC
+                    window.makeKeyAndVisible()
+                }
+
+            } catch let signOutError as NSError {
+                print("Error signing out:", signOutError.localizedDescription)
+            }
+    }
+
 
     // MARK: Edit photo
 
@@ -367,6 +485,8 @@ final class UserSettingsViewController: UIViewController {
     private func hapticError() { UINotificationFeedbackGenerator().notificationOccurred(.error) }
 }
 
+
+
 // MARK: - TableView
 
 extension UserSettingsViewController: UITableViewDataSource, UITableViewDelegate {
@@ -383,6 +503,7 @@ extension UserSettingsViewController: UITableViewDataSource, UITableViewDelegate
         config.prefersSideBySideTextAndSecondaryText = true
         config.secondaryTextProperties.alignment = .justified
         cell.contentConfiguration = config
+        cell.backgroundColor = UIColor(red: 0.99, green: 0.90, blue: 0.93, alpha: 1.0)
 
         // Accessory
         if field.isToggle {
