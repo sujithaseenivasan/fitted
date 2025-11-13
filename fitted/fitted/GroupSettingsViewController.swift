@@ -7,6 +7,7 @@
 
 import UIKit
 import FirebaseFirestore
+import FirebaseStorage
 
 class GroupSettingsViewController: UIViewController {
 
@@ -30,14 +31,47 @@ class GroupSettingsViewController: UIViewController {
             let name = data["group_name"] as? String ?? ""
             let code = data["id"] as? String ?? ""
             let password = data["password"] as? String ?? ""
-            
+            let imagePath = data["image"] as? String   // ← Storage URL (gs://...)
+
             DispatchQueue.main.async {
                 self.groupNameLabel.text = name
                 self.groupIdLabel.text = code
                 self.groupPassLabel.text = password
             }
+
+            // load image if present
+            if let path = imagePath {
+                self.loadImage(from: path) { [weak self] image in
+                    guard let self = self else { return }
+                    DispatchQueue.main.async {
+                        self.imageView.image = image
+                    }
+                }
+            } else {
+                DispatchQueue.main.async {
+                    self.imageView.image = nil
+                }
+            }
         }
     }
+
+    
+    private func loadImage(from storagePath: String, completion: @escaping (UIImage?) -> Void) {
+        let storageRef = Storage.storage().reference(forURL: storagePath)
+        storageRef.getData(maxSize: 5 * 1024 * 1024) { data, error in
+            if let error = error {
+                print("Error loading image: \(error.localizedDescription)")
+                completion(nil)
+                return
+            }
+            if let data = data, let image = UIImage(data: data) {
+                completion(image)
+            } else {
+                completion(nil)
+            }
+        }
+    }
+
     
     private func presentEditAlert(fieldKey: String,
                                   title: String,
