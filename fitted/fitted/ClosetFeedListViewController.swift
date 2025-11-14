@@ -125,22 +125,38 @@ class ClosetFeedListViewController: UIViewController, UITableViewDataSource, UIT
         cell.titleLabel.text = item["name"] as? String ?? ""
 
         // Load the item image if stored as a URL string
-        if let urlString = item["image"] as? String,
-           let url = URL(string: urlString) {
+        if let urlString = item["image"] as? String {
+            let targetIndexPath = indexPath
 
-            URLSession.shared.dataTask(with: url) { data, _, _ in
-                if let data = data, let img = UIImage(data: data) {
+            if urlString.hasPrefix("gs://") {
+                // Firebase Storage path
+                let ref = Storage.storage().reference(forURL: urlString)
+                ref.getData(maxSize: 5 * 1024 * 1024) { data, error in
+                    guard let data = data, error == nil,
+                          let img = UIImage(data: data) else { return }
+
                     DispatchQueue.main.async {
-                        // ensure cell is still visible
-                        if let visible = tableView.cellForRow(at: indexPath) as? ClosetFeedCell {
+                        if let visible = tableView.cellForRow(at: targetIndexPath) as? ClosetFeedCell {
                             visible.itemImage.image = img
                         }
                     }
                 }
-            }.resume()
+            } else if let url = URL(string: urlString) {
+                // Regular HTTPS URL
+                URLSession.shared.dataTask(with: url) { data, _, _ in
+                    if let data = data, let img = UIImage(data: data) {
+                        DispatchQueue.main.async {
+                            if let visible = tableView.cellForRow(at: targetIndexPath) as? ClosetFeedCell {
+                                visible.itemImage.image = img
+                            }
+                        }
+                    }
+                }.resume()
+            }
         } else {
             cell.itemImage.image = nil
         }
+
 
         return cell
     }

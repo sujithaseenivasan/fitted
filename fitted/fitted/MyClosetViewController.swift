@@ -8,6 +8,7 @@
 import UIKit
 import FirebaseAuth
 import FirebaseFirestore
+import FirebaseStorage
 
 struct ClosetItem {
     let id: String
@@ -93,18 +94,35 @@ class MyClosetViewController: UIViewController, UICollectionViewDataSource, UICo
         cell.titleLabel.text = item.name
         cell.imageView.image = nil
 
-        if let urlString = item.imageURL, let url = URL(string: urlString) {
+        if let urlString = item.imageURL {
             let targetIndexPath = indexPath
-            URLSession.shared.dataTask(with: url) { data, _, _ in
-                if let data = data, let img = UIImage(data: data) {
+
+            if urlString.hasPrefix("gs://") {
+                // Firebase Storage path
+                let ref = Storage.storage().reference(forURL: urlString)
+                ref.getData(maxSize: 5 * 1024 * 1024) { data, error in
+                    guard let data = data, error == nil,
+                          let img = UIImage(data: data) else { return }
                     DispatchQueue.main.async {
                         if let visible = collectionView.cellForItem(at: targetIndexPath) as? ClosetItemCell {
                             visible.imageView.image = img
                         }
                     }
                 }
-            }.resume()
+            } else if let url = URL(string: urlString) {
+                // Regular https URL
+                URLSession.shared.dataTask(with: url) { data, _, _ in
+                    if let data = data, let img = UIImage(data: data) {
+                        DispatchQueue.main.async {
+                            if let visible = collectionView.cellForItem(at: targetIndexPath) as? ClosetItemCell {
+                                visible.imageView.image = img
+                            }
+                        }
+                    }
+                }.resume()
+            }
         }
+
         return cell
     }
     
