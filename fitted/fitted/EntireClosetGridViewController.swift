@@ -323,8 +323,8 @@ class EntireClosetGridViewController: UIViewController,
         cell.titleLabel.text = item.name
 
         cell.imageView.image = nil
-        cell.imageView.contentMode = .scaleAspectFill
-        cell.imageView.clipsToBounds = true
+//        cell.imageView.contentMode = .scaleAspectFill
+//        cell.imageView.clipsToBounds = true
 
         let targetIndexPath = indexPath
 
