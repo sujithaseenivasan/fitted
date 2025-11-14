@@ -7,6 +7,7 @@
 
 import UIKit
 import FirebaseFirestore
+import FirebaseStorage
 
 struct EntireClosetItem {
     let id: String
@@ -325,16 +326,39 @@ class EntireClosetGridViewController: UIViewController,
         cell.imageView.contentMode = .scaleAspectFill
         cell.imageView.clipsToBounds = true
 
-        if let urlString = item.imageURL, let url = URL(string: urlString) {
-            // simple image load (you can swap to SDWebImage later if you want)
-            URLSession.shared.dataTask(with: url) { data, _, _ in
-                guard let data = data, let image = UIImage(data: data) else { return }
-                DispatchQueue.main.async {
-                    if let visible = collectionView.cellForItem(at: indexPath) as? EntireClosetCell {
-                        visible.imageView.image = image
+        let targetIndexPath = indexPath
+
+        if let urlString = item.imageURL {
+            
+            if urlString.hasPrefix("gs://") {
+                // --- Firebase Storage path ---
+                let ref = Storage.storage().reference(forURL: urlString)
+                ref.getData(maxSize: 5 * 1024 * 1024) { data, error in
+                    guard let data = data, error == nil,
+                          let img = UIImage(data: data) else { return }
+
+                    DispatchQueue.main.async {
+                        // Ensure cell is still visible & correct
+                        if let visible = collectionView.cellForItem(at: targetIndexPath) as? EntireClosetCell {
+                            visible.imageView.image = img
+                        }
                     }
                 }
-            }.resume()
+
+            } else if let url = URL(string: urlString) {
+                // --- Regular HTTPS URL ---
+                URLSession.shared.dataTask(with: url) { data, _, _ in
+                    guard let data = data, let img = UIImage(data: data) else { return }
+                    DispatchQueue.main.async {
+                        if let visible = collectionView.cellForItem(at: targetIndexPath) as? EntireClosetCell {
+                            visible.imageView.image = img
+                        }
+                    }
+                }.resume()
+            }
+
+        } else {
+            cell.imageView.image = nil
         }
 
         return cell
