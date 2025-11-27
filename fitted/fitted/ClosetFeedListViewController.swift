@@ -165,5 +165,15 @@ class ClosetFeedListViewController: UIViewController, UITableViewDataSource, UIT
                    heightForRowAt indexPath: IndexPath) -> CGFloat {
         return 200  
     }
+    
+    func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+        let item = items[indexPath.row]
+        let sb = UIStoryboard(name: "Main", bundle: nil)
+        if let detailVC = sb.instantiateViewController(withIdentifier: "ItemDetailViewController") as? ItemDetailViewController {
+            detailVC.itemData = item
+            navigationController?.pushViewController(detailVC, animated: true)
+        }
+    }
+
 
 }

@@ -66,16 +66,35 @@ class ManageMembersViewController: UIViewController, UITableViewDataSource, UITa
     }
     
     
-    private func loadImage(from storagePath: String, completion: @escaping (UIImage?) -> Void) {
-        let ref = Storage.storage().reference(forURL: storagePath)
-        ref.getData(maxSize: 5 * 1024 * 1024) { data, error in
-            if let data = data, error == nil, let image = UIImage(data: data) {
+    private func loadImage(from path: String, completion: @escaping (UIImage?) -> Void) {
+        // gs:// path → Firebase Storage
+        if path.hasPrefix("gs://") {
+            let ref = Storage.storage().reference(forURL: path)
+            ref.getData(maxSize: 5 * 1024 * 1024) { data, error in
+                guard let data = data, error == nil,
+                      let image = UIImage(data: data) else {
+                    completion(nil)
+                    return
+                }
                 completion(image)
-            } else {
-                completion(nil)
             }
+
+        // https:// path → normal URLSession
+        } else if let url = URL(string: path) {
+            URLSession.shared.dataTask(with: url) { data, _, _ in
+                guard let data = data,
+                      let image = UIImage(data: data) else {
+                    completion(nil)
+                    return
+                }
+                completion(image)
+            }.resume()
+
+        } else {
+            completion(nil)
         }
     }
+
     
     func tableView(_ tableView: UITableView,
                    numberOfRowsInSection section: Int) -> Int {
@@ -103,5 +122,6 @@ class ManageMembersViewController: UIViewController, UITableViewDataSource, UITa
 
         return cell
     }
+
 
 }
