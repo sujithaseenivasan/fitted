@@ -173,6 +173,10 @@ class ClosetFeedListViewController: UIViewController, UITableViewDataSource, UIT
         if let detailVC = sb.instantiateViewController(withIdentifier: "ItemDetailViewController") as? ItemDetailViewController {
             detailVC.itemData = item
             detailVC.itemId = item["id"] as? String
+            
+            detailVC.eventId = self.eventId                  // Always available here
+            //detailVC.groupId = item["groupId"] as? String    // !dont think i have this field?
+            
             navigationController?.pushViewController(detailVC, animated: true)
         }
     }

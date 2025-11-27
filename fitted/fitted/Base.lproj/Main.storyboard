@@ -576,6 +576,7 @@
                                                 </button>
                                             </subviews>
                                             <constraints>
+                                                <constraint firstAttribute="bottom" secondItem="UPz-QD-TlD" secondAttribute="bottom" constant="11" id="0lD-08-wn0"/>
                                                 <constraint firstAttribute="trailing" secondItem="dQC-Vj-agz" secondAttribute="trailing" constant="30" id="4F2-dl-oAR"/>
                                                 <constraint firstAttribute="trailing" secondItem="yr5-dH-x0V" secondAttribute="trailing" constant="40" id="DEt-6q-PDR"/>
                                                 <constraint firstItem="DG6-h0-jYX" firstAttribute="leading" secondItem="hs8-Zb-b8y" secondAttribute="trailing" constant="8" symbolic="YES" id="FV5-fO-L3Q"/>
@@ -587,6 +588,7 @@
                                                 <constraint firstItem="yr5-dH-x0V" firstAttribute="top" secondItem="dQC-Vj-agz" secondAttribute="bottom" constant="10" id="g5f-Px-p0T"/>
                                                 <constraint firstItem="cX8-Tq-wAg" firstAttribute="top" secondItem="fH5-NY-eQ9" secondAttribute="top" constant="17" id="hXR-8G-3NV"/>
                                                 <constraint firstItem="DG6-h0-jYX" firstAttribute="top" secondItem="cX8-Tq-wAg" secondAttribute="bottom" constant="10" id="nJT-ab-DOz"/>
+                                                <constraint firstAttribute="bottom" secondItem="DU5-cr-sbE" secondAttribute="bottom" constant="16" id="nr2-ZR-fGJ"/>
                                                 <constraint firstItem="hs8-Zb-b8y" firstAttribute="leading" secondItem="fH5-NY-eQ9" secondAttribute="leading" constant="20" symbolic="YES" id="pda-tG-o9p"/>
                                                 <constraint firstItem="hs8-Zb-b8y" firstAttribute="top" secondItem="fH5-NY-eQ9" secondAttribute="top" constant="17" id="sKX-Z2-JCV"/>
                                                 <constraint firstItem="4Tp-g1-PRO" firstAttribute="leading" secondItem="hs8-Zb-b8y" secondAttribute="trailing" constant="8" symbolic="YES" id="x9n-cb-SOt"/>
@@ -617,6 +619,9 @@
                             <constraint firstItem="3DL-VG-JTX" firstAttribute="leading" secondItem="lns-9c-NpC" secondAttribute="leading" id="nkL-nC-8iT"/>
                         </constraints>
                     </view>
+                    <connections>
+                        <outlet property="tableView" destination="3DL-VG-JTX" id="6KJ-Un-eNh"/>
+                    </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="b1L-T5-dZA" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
             </objects>

@@ -413,6 +413,9 @@ class EntireClosetGridViewController: UIViewController,
                     "clothing_type": selectedItem.type as Any,
                     "imageURL": selectedItem.imageURL as Any
                 ]
+                
+                detailVC.eventId = self.eventId
+                detailVC.groupId
 
                 self.navigationController?.pushViewController(detailVC, animated: true)
             }

@@ -24,6 +24,8 @@ class ItemDetailViewController: UIViewController {
     
     var itemData: [String: Any]!
     var itemId: String!
+    var eventId: String?
+    var groupId: String?
     private let db = Firestore.firestore()
     
     override func viewDidLoad() {
@@ -131,13 +133,23 @@ class ItemDetailViewController: UIViewController {
         let requestsRef = db.collection("requests")
         let reqRef = requestsRef.document()
 
-        let reqData: [String: Any] = [
+        var reqData: [String: Any] = [
             "itemId": itemId,
             "ownerId": ownerId,
             "requesterId": currentUid,
             "status": "pending",
+            "eventId": self.eventId ?? "",
+            "groupId": self.groupId ?? "",
             "createdAt": FieldValue.serverTimestamp()
         ]
+        
+        // Attach event / group context if we have it
+        if var eventId = eventId {
+            reqData["eventId"] = eventId
+        }
+        if var groupId = groupId {
+            reqData["groupId"] = groupId
+        }
 
         let requesterUserRef = db.collection("users").document(currentUid)
         let ownerUserRef     = db.collection("users").document(ownerId)
