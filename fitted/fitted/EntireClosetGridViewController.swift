@@ -383,4 +383,40 @@ class EntireClosetGridViewController: UIViewController,
         let itemHeight = itemWidth * 1.4        // image + label
         return CGSize(width: itemWidth, height: itemHeight)
     }
+    
+    func collectionView(_ collectionView: UICollectionView,
+                        didSelectItemAt indexPath: IndexPath) {
+
+        let selectedItem = filteredItems[indexPath.item]
+
+        // Fetch the full closet_items document so ItemDetailVC
+        // gets all fields (description, brand, owner, etc.)
+        db.collection("closet_items").document(selectedItem.id).getDocument { [weak self] snap, _ in
+            guard
+                let self = self,
+                let data = snap?.data()
+            else { return }
+
+            DispatchQueue.main.async {
+                let storyboard = UIStoryboard(name: "Main", bundle: nil)
+                guard let detailVC = storyboard.instantiateViewController(
+                    withIdentifier: "ItemDetailViewController"
+                ) as? ItemDetailViewController else { return }
+
+                // pass the item dictionary to ItemDetailViewController
+                detailVC.itemId = selectedItem.id
+                detailVC.itemData = [
+                    "name": selectedItem.name,
+                    "size": selectedItem.size as Any,
+                    "price": selectedItem.price as Any,
+                    "color": selectedItem.color as Any,
+                    "clothing_type": selectedItem.type as Any,
+                    "imageURL": selectedItem.imageURL as Any
+                ]
+
+                self.navigationController?.pushViewController(detailVC, animated: true)
+            }
+        }
+    }
+
 }

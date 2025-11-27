@@ -56,7 +56,8 @@ class ClosetFeedListViewController: UIViewController, UITableViewDataSource, UIT
         for id in itemIds {
             group.enter()
             db.collection("closet_items").document(id).getDocument { snap, _ in
-                if let data = snap?.data() {
+                if var data = snap?.data() {
+                    data["id"] = snap!.documentID
                     results.append(data)
                 }
                 group.leave()
@@ -171,6 +172,7 @@ class ClosetFeedListViewController: UIViewController, UITableViewDataSource, UIT
         let sb = UIStoryboard(name: "Main", bundle: nil)
         if let detailVC = sb.instantiateViewController(withIdentifier: "ItemDetailViewController") as? ItemDetailViewController {
             detailVC.itemData = item
+            detailVC.itemId = item["id"] as? String
             navigationController?.pushViewController(detailVC, animated: true)
         }
     }

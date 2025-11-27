@@ -8,6 +8,7 @@
 import UIKit
 import FirebaseFirestore
 import FirebaseStorage
+import FirebaseAuth
 
 class ItemDetailViewController: UIViewController {
 
@@ -19,8 +20,10 @@ class ItemDetailViewController: UIViewController {
     @IBOutlet weak var nameLabel: UILabel!
     @IBOutlet weak var profileImage: UIImageView!
     @IBOutlet weak var itemImage: UIImageView!
+    @IBOutlet weak var requestButton: UIButton!
     
     var itemData: [String: Any]!
+    var itemId: String!
     private let db = Firestore.firestore()
     
     override func viewDidLoad() {
@@ -28,7 +31,16 @@ class ItemDetailViewController: UIViewController {
         descriptionLabel.numberOfLines = 0
         descriptionLabel.lineBreakMode = .byWordWrapping
         configureUI()
+        updateRequestButtonUI()
     }
+    
+    override func viewDidLayoutSubviews() {
+        super.viewDidLayoutSubviews()
+
+        requestButton.layer.cornerRadius = 12      // or requestButton.bounds.height / 2 for pill
+        requestButton.clipsToBounds = true
+    }
+
     
     private func configureUI() {
         guard let itemData = itemData else { return }
@@ -109,7 +121,126 @@ class ItemDetailViewController: UIViewController {
     }
     
     @IBAction func requestButtonPressed(_ sender: Any) {
+        guard let currentUid = Auth.auth().currentUser?.uid else { return }
+        guard let ownerId = itemData["owner"] as? String else { return }
+        guard let itemId = itemId else { return }
+
+        // Don’t allow requesting your own item
+        if currentUid == ownerId { return }
+
+        let requestsRef = db.collection("requests")
+        let reqRef = requestsRef.document()
+
+        let reqData: [String: Any] = [
+            "itemId": itemId,
+            "ownerId": ownerId,
+            "requesterId": currentUid,
+            "status": "pending",
+            "createdAt": FieldValue.serverTimestamp()
+        ]
+
+        let requesterUserRef = db.collection("users").document(currentUid)
+        let ownerUserRef     = db.collection("users").document(ownerId)
+        let itemRef          = db.collection("closet_items").document(itemId)
+
+        let batch = db.batch()
+
+        // 1) new request doc
+        batch.setData(reqData, forDocument: reqRef)
+
+        // 2) add to outgoing / incoming arrays
+        batch.setData(
+            ["outgoingRequests": FieldValue.arrayUnion([reqRef.documentID])],
+            forDocument: requesterUserRef,
+            merge: true
+        )
+        batch.setData(
+            ["incomingRequests": FieldValue.arrayUnion([reqRef.documentID])],
+            forDocument: ownerUserRef,
+            merge: true
+        )
+
+        // 3) optionally mark item status + requestedBy
+        batch.updateData(
+            ["status": "pending",
+             "requestedBy": currentUid],
+            forDocument: itemRef
+        )
+
+        batch.commit { [weak self] error in
+            guard let self = self else { return }
+            if let error = error {
+                print("Failed to create request: \(error.localizedDescription)")
+                return
+            }
+
+            // Update local model + button state after success
+            self.itemData["status"] = "pending"
+            self.itemData["requestedBy"] = currentUid
+            self.updateRequestButtonUI()
+
+            // Show confirmation
+            let ac = UIAlertController(
+                title: "Request Sent",
+                message: "Your request has been sent to the owner.",
+                preferredStyle: .alert
+            )
+            ac.addAction(UIAlertAction(title: "OK", style: .default))
+            self.present(ac, animated: true)
+        }
     }
+    
+    func updateRequestButtonUI() {
+        guard let currentUid = Auth.auth().currentUser?.uid else { return }
+
+        let status = itemData["status"] as? String ?? "available"
+        let requestedBy = itemData["requestedBy"] as? String
+        let ownerId = itemData["owner"] as? String
+
+        // If user owns the item
+        if currentUid == ownerId {
+            requestButton.setTitle("You Own This", for: .normal)
+            requestButton.backgroundColor = .lightGray
+            requestButton.isEnabled = false
+            return
+        }
+
+        // AVAILABLE
+        if status == "available" {
+            requestButton.setTitle("Request", for: .normal)
+            self.requestButton.backgroundColor = UIColor(named: "SecondaryPink")
+            requestButton.isEnabled = true
+            return
+        }
+
+        // PENDING — requested by current user
+        if status == "pending", requestedBy == currentUid {
+            requestButton.setTitle("Requested", for: .normal)
+            self.requestButton.backgroundColor = UIColor(named: "AccentColorGreen")
+            requestButton.isEnabled = false
+            return
+        }
+
+        // PENDING — requested by someone else
+//        if status == "pending", requestedBy != currentUid {
+//            requestButton.setTitle("Pending", for: .normal)
+//            requestButton.backgroundColor = UIColor.lightGray
+//            requestButton.isEnabled = false
+//            return
+//        }
+
+        // NOT AVAILABLE (optional future state)
+//        if status == "unavailable" {
+//            requestButton.setTitle("Unavailable", for: .normal)
+//            requestButton.backgroundColor = UIColor.darkGray
+//            requestButton.isEnabled = false
+//            return
+//        }
+        
+        requestButton.layer.cornerRadius = 12
+        requestButton.layer.masksToBounds = true
+    }
+
 
 
 }
