@@ -20,12 +20,12 @@ class ManageRequestsViewController: UIViewController {
         return vc
     }()
 
-//    private lazy var inquiriesVC: InquiriesViewController = {
-//        let vc = storyboard!.instantiateViewController(
-//            withIdentifier: "InquiriesViewController"
-//        ) as! InquiriesViewController
-//        return vc
-//    }()
+    private lazy var inquiriesVC: MyInquiriesViewController = {
+        let vc = storyboard!.instantiateViewController(
+            withIdentifier: "MyInquiriesViewController"
+        ) as! MyInquiriesViewController
+        return vc
+    }()
 
     private var currentChild: UIViewController?
     
@@ -41,8 +41,7 @@ class ManageRequestsViewController: UIViewController {
         case 0:
             showChild(myRequestsVC)
         case 1:
-            break
-            //showChild(inquiriesVC)
+            showChild(inquiriesVC)
         default:
             break
         }
