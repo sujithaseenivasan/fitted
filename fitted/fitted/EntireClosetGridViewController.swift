@@ -62,6 +62,7 @@ class EntireClosetGridViewController: UIViewController,
     @IBOutlet weak var priceButton: UIButton!
     @IBOutlet weak var colorButton: UIButton!
 
+    @IBOutlet weak var filterStackView: UIStackView!
     // MARK: - Data
 
     var eventId: String!               // set this before pushing VC
@@ -70,6 +71,7 @@ class EntireClosetGridViewController: UIViewController,
 
     private var allItems: [EntireClosetItem] = []
     private var filteredItems: [EntireClosetItem] = []
+    private var cachedItemWidth: CGFloat = 0
 
     // current filter selections
     private var selectedSize: String?
@@ -84,13 +86,26 @@ class EntireClosetGridViewController: UIViewController,
 
         collectionView.dataSource = self
         collectionView.delegate   = self
+        
+        for subview in filterStackView.arrangedSubviews {
+            subview.layer.borderWidth = 1
+            subview.layer.borderColor = UIColor.black.cgColor
+            subview.layer.cornerRadius = 0   // or some radius if you want
+            subview.clipsToBounds = true
+        }
+
+        if let layout = collectionView.collectionViewLayout as? UICollectionViewFlowLayout {
+            layout.minimumInteritemSpacing = 8       // space between items in a row
+            layout.minimumLineSpacing      = 20      // vertical space between rows
+        }
 
         // some bottom padding so last row isn't under tab bar
-        collectionView.contentInset = UIEdgeInsets(top: 8, left: 0, bottom: 80, right: 0)
+        collectionView.contentInset = UIEdgeInsets(top: 12, left: 0, bottom: 80, right: 0)
 
         resetFilterButtonTitles()
         fetchEventItems()
     }
+
     
     override func viewDidLayoutSubviews() {
         super.viewDidLayoutSubviews()
@@ -313,40 +328,36 @@ class EntireClosetGridViewController: UIViewController,
                         cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
 
         guard let cell = collectionView.dequeueReusableCell(
-            withReuseIdentifier: "EntireClosetCell",
-            for: indexPath
-        ) as? EntireClosetCell else {
-            return UICollectionViewCell()
-        }
+                withReuseIdentifier: "EntireClosetCell",
+                for: indexPath
+            ) as? EntireClosetCell else {
+                return UICollectionViewCell()
+            }
 
-        let item = filteredItems[indexPath.item]
-        cell.titleLabel.text = item.name
+            let item = filteredItems[indexPath.item]
+            cell.titleLabel.text = item.name
+            
+            // IMPORTANT: update label width to match our layout math
+            cell.cellWidth = cachedItemWidth
 
-        cell.imageView.image = nil
-//        cell.imageView.contentMode = .scaleAspectFill
-//        cell.imageView.clipsToBounds = true
+            cell.imageView.image = nil
 
         let targetIndexPath = indexPath
 
         if let urlString = item.imageURL {
-            
             if urlString.hasPrefix("gs://") {
-                // --- Firebase Storage path ---
                 let ref = Storage.storage().reference(forURL: urlString)
                 ref.getData(maxSize: 5 * 1024 * 1024) { data, error in
                     guard let data = data, error == nil,
                           let img = UIImage(data: data) else { return }
 
                     DispatchQueue.main.async {
-                        // Ensure cell is still visible & correct
                         if let visible = collectionView.cellForItem(at: targetIndexPath) as? EntireClosetCell {
                             visible.imageView.image = img
                         }
                     }
                 }
-
             } else if let url = URL(string: urlString) {
-                // --- Regular HTTPS URL ---
                 URLSession.shared.dataTask(with: url) { data, _, _ in
                     guard let data = data, let img = UIImage(data: data) else { return }
                     DispatchQueue.main.async {
@@ -356,33 +367,48 @@ class EntireClosetGridViewController: UIViewController,
                     }
                 }.resume()
             }
-
-        } else {
-            cell.imageView.image = nil
         }
 
         return cell
     }
+
 
     // MARK: - Layout
 
     func collectionView(_ collectionView: UICollectionView,
                         layout collectionViewLayout: UICollectionViewLayout,
                         insetForSectionAt section: Int) -> UIEdgeInsets {
-        return UIEdgeInsets(top: 8, left: 12, bottom: 8, right: 12)
+        // slight padding like in Figma
+        return UIEdgeInsets(top: 12, left: 0, bottom: 12, right: 0)
     }
 
     func collectionView(_ collectionView: UICollectionView,
                         layout collectionViewLayout: UICollectionViewLayout,
                         sizeForItemAt indexPath: IndexPath) -> CGSize {
+
         let insets = self.collectionView(collectionView,
                                          layout: collectionViewLayout,
                                          insetForSectionAt: indexPath.section)
-        let width = collectionView.bounds.width - insets.left - insets.right
-        let itemWidth = (width - 16) / 3.0      // 3 items per row with some spacing
-        let itemHeight = itemWidth * 1.4        // image + label
+
+        let numberOfItemsPerRow: CGFloat = 3
+        let interItemSpacing: CGFloat = 8
+
+        let totalHorizontalSpacing = interItemSpacing * (numberOfItemsPerRow - 1)
+        let availableWidth = collectionView.bounds.width
+            - insets.left - insets.right
+            - totalHorizontalSpacing
+
+        let itemWidth = floor(availableWidth / numberOfItemsPerRow)
+        cachedItemWidth = itemWidth            // <-- remember this
+
+        let imageHeight = itemWidth
+        let labelHeight: CGFloat = 44          // a bit taller for 2 lines
+        let itemHeight = imageHeight + labelHeight + 16
+
         return CGSize(width: itemWidth, height: itemHeight)
     }
+
+
     
     func collectionView(_ collectionView: UICollectionView,
                         didSelectItemAt indexPath: IndexPath) {
@@ -421,5 +447,18 @@ class EntireClosetGridViewController: UIViewController,
             }
         }
     }
+    
+    func collectionView(_ collectionView: UICollectionView,
+                        layout collectionViewLayout: UICollectionViewLayout,
+                        minimumInteritemSpacingForSectionAt section: Int) -> CGFloat {
+        return 8
+    }
+
+    func collectionView(_ collectionView: UICollectionView,
+                        layout collectionViewLayout: UICollectionViewLayout,
+                        minimumLineSpacingForSectionAt section: Int) -> CGFloat {
+        return 16
+    }
+
 
 }

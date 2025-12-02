@@ -1953,9 +1953,12 @@
                                             <rect key="frame" x="0.0" y="0.0" width="148" height="178"/>
                                             <autoresizingMask key="autoresizingMask"/>
                                             <subviews>
-                                                <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Label" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="RMr-sG-mn1">
-                                                    <rect key="frame" x="15.000000000000004" y="144" width="37.333333333333343" height="18"/>
-                                                    <fontDescription key="fontDescription" type="system" pointSize="15"/>
+                                                <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Label" textAlignment="center" lineBreakMode="wordWrap" numberOfLines="0" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="RMr-sG-mn1">
+                                                    <rect key="frame" x="15" y="144" width="120" height="15.666666666666657"/>
+                                                    <constraints>
+                                                        <constraint firstAttribute="width" constant="120" id="2NG-lR-pkQ"/>
+                                                    </constraints>
+                                                    <fontDescription key="fontDescription" type="system" pointSize="13"/>
                                                     <nil key="textColor"/>
                                                     <nil key="highlightedColor"/>
                                                 </label>
@@ -1978,6 +1981,7 @@
                                         <connections>
                                             <outlet property="imageView" destination="znZ-Jn-ifY" id="cB8-wa-goT"/>
                                             <outlet property="titleLabel" destination="RMr-sG-mn1" id="S3D-Aw-o4G"/>
+                                            <outlet property="titleWidthConstraint" destination="2NG-lR-pkQ" id="aIZ-AX-m4S"/>
                                         </connections>
                                     </collectionViewCell>
                                 </cells>
@@ -2042,6 +2046,7 @@
                         <outlet property="collectionView" destination="MEs-5Z-XLI" id="Img-R6-KpS"/>
                         <outlet property="colorButton" destination="cS9-si-bfQ" id="Zkr-zK-OP3"/>
                         <outlet property="filterBarContainer" destination="nxA-Eq-vID" id="rAE-Rg-5kh"/>
+                        <outlet property="filterStackView" destination="F2p-jH-wEs" id="b15-eG-FCX"/>
                         <outlet property="priceButton" destination="Mt2-0b-Rq2" id="y4Q-VR-Vlv"/>
                         <outlet property="sizeButton" destination="AgP-9d-T5h" id="OCG-Q2-ruK"/>
                         <outlet property="typeButton" destination="HEY-h7-0jO" id="rSu-cD-AaN"/>
