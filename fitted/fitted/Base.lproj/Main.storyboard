@@ -2065,7 +2065,7 @@
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
                             <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Join a Group!" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="1Xk-gK-CS8">
-                                <rect key="frame" x="145" y="245" width="111" height="21"/>
+                                <rect key="frame" x="145" y="245" width="101.33333333333331" height="21"/>
                                 <constraints>
                                     <constraint firstAttribute="height" constant="21" id="iok-rD-G7j"/>
                                     <constraint firstAttribute="width" constant="102" id="nLM-i5-zy5"/>
@@ -2095,7 +2095,7 @@
                                 <nil key="highlightedColor"/>
                             </label>
                             <textField opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="248" contentHorizontalAlignment="left" contentVerticalAlignment="center" borderStyle="roundedRect" textAlignment="natural" minimumFontSize="17" translatesAutoresizingMaskIntoConstraints="NO" id="I8N-de-Smg">
-                                <rect key="frame" x="174" y="310" width="196" height="34"/>
+                                <rect key="frame" x="164.33333333333337" y="310" width="196" height="34"/>
                                 <color key="backgroundColor" name="AccentColor 1"/>
                                 <constraints>
                                     <constraint firstAttribute="width" constant="196" id="HGY-De-2tv"/>
@@ -2106,7 +2106,7 @@
                                 <textInputTraits key="textInputTraits"/>
                             </textField>
                             <textField opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="248" contentHorizontalAlignment="left" contentVerticalAlignment="center" borderStyle="roundedRect" textAlignment="natural" minimumFontSize="17" translatesAutoresizingMaskIntoConstraints="NO" id="5mu-QT-u38">
-                                <rect key="frame" x="174" y="354" width="196" height="34"/>
+                                <rect key="frame" x="164.33333333333337" y="354" width="196" height="34"/>
                                 <color key="backgroundColor" name="AccentColor 1"/>
                                 <constraints>
                                     <constraint firstAttribute="width" constant="196" id="BDn-yK-8Ox"/>
@@ -2116,7 +2116,7 @@
                                 <textInputTraits key="textInputTraits"/>
                             </textField>
                             <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="JSo-rz-4Qz">
-                                <rect key="frame" x="138" y="518" width="126" height="35"/>
+                                <rect key="frame" x="138" y="518" width="116.33333333333331" height="35"/>
                                 <color key="backgroundColor" name="AccentColor 1"/>
                                 <color key="tintColor" name="AccentColor 1"/>
                                 <state key="normal" title="Button"/>

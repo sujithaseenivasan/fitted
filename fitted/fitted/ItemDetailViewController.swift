@@ -144,10 +144,10 @@ class ItemDetailViewController: UIViewController {
         ]
         
         // Attach event / group context if we have it
-        if var eventId = eventId {
+        if let eventId = eventId {
             reqData["eventId"] = eventId
         }
-        if var groupId = groupId {
+        if let groupId = groupId {
             reqData["groupId"] = groupId
         }
 
@@ -167,7 +167,10 @@ class ItemDetailViewController: UIViewController {
             merge: true
         )
         batch.setData(
-            ["incomingRequests": FieldValue.arrayUnion([reqRef.documentID])],
+            [
+                "incomingRequests": FieldValue.arrayUnion([reqRef.documentID]),
+                "newRequests": FieldValue.arrayUnion([reqRef.documentID])
+            ],
             forDocument: ownerUserRef,
             merge: true
         )

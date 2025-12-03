@@ -18,10 +18,27 @@ class ClosetFeedViewController: UIViewController {
 
     var eventId: String!
     
+    private let underlineView = UIView()
+    private var underlineLeadingConstraint: NSLayoutConstraint?
+    
     override func viewDidLoad() {
         super.viewDidLoad()
+        
+        segmentedControl.backgroundColor = .clear
+        segmentedControl.selectedSegmentTintColor = .clear
+        
+        segmentedControl.setTitleTextAttributes([
+            .foregroundColor: UIColor.darkGray,
+            .font: UIFont.systemFont(ofSize: 16, weight: .regular)
+        ], for: .normal)
+        
+        segmentedControl.setTitleTextAttributes([
+            .foregroundColor: UIColor.black,
+            .font: UIFont.systemFont(ofSize: 16, weight: .semibold)
+        ], for: .selected)
+        
         loadSelectedSegment()
-        // Do any additional setup after loading the view.
+        
     }
     
     override func viewWillAppear(_ animated: Bool) {
@@ -29,8 +46,55 @@ class ClosetFeedViewController: UIViewController {
         loadSelectedSegment()
     }
     
+
+    override func viewDidLayoutSubviews() {
+        super.viewDidLayoutSubviews()
+
+        // Only set up once, after segmentedControl has a proper frame
+        if underlineView.superview == nil {
+            configureUnderline()
+        }
+
+        // Make sure underline is in the right place after rotations/layout changes
+        updateUnderlinePosition(animated: false)
+    }
+
+    private func configureUnderline() {
+        underlineView.backgroundColor = .black
+        underlineView.translatesAutoresizingMaskIntoConstraints = false
+        segmentedControl.addSubview(underlineView)
+
+        let segmentWidth = segmentedControl.bounds.width / CGFloat(segmentedControl.numberOfSegments)
+
+        underlineLeadingConstraint = underlineView.leadingAnchor.constraint(equalTo: segmentedControl.leadingAnchor)
+
+        NSLayoutConstraint.activate([
+            underlineLeadingConstraint!,
+            underlineView.bottomAnchor.constraint(equalTo: segmentedControl.bottomAnchor, constant: 2),
+            underlineView.heightAnchor.constraint(equalToConstant: 2),
+            underlineView.widthAnchor.constraint(equalToConstant: segmentWidth)
+        ])
+    }
+    
+    private func updateUnderlinePosition(animated: Bool) {
+        let segmentWidth = segmentedControl.bounds.width / CGFloat(segmentedControl.numberOfSegments)
+        underlineLeadingConstraint?.constant = segmentWidth * CGFloat(segmentedControl.selectedSegmentIndex)
+
+        let animations = {
+            self.segmentedControl.layoutIfNeeded()
+        }
+
+        if animated {
+            UIView.animate(withDuration: 0.25, animations: animations)
+        } else {
+            animations()
+        }
+    }
+
+    
     
     @IBAction func segmentChanged(_ sender: Any) {
+        updateUnderlinePosition(animated: true)
         loadSelectedSegment()
     }
     

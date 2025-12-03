@@ -32,9 +32,79 @@ class ClosetShareGroupsViewController: UIViewController, UICollectionViewDataSou
         fetchGroups()
     }
     
+    
+    override func viewDidAppear(_ animated: Bool) {
+        super.viewDidAppear(animated)
+        checkForNewRequests()
+    }
+    
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
         fetchGroups()   // refresh list every time user returns
+    }
+    
+    private func checkForNewRequests() {
+        guard let uid = Auth.auth().currentUser?.uid else { return }
+
+        let userRef = db.collection("users").document(uid)
+        userRef.getDocument { [weak self] snap, error in
+            guard let self = self else { return }
+            if let error = error {
+                print("Error fetching user doc: \(error.localizedDescription)")
+                return
+            }
+            guard let data = snap?.data() else { return }
+
+            // Read newRequests as [String]
+            let newRequests = data["newRequests"] as? [String] ?? []
+
+            // Nothing new → do nothing
+            guard !newRequests.isEmpty else { return }
+
+            let count = newRequests.count
+            let message = count == 1
+                ? "You have 1 new request."
+                : "You have \(count) new requests."
+
+            let ac = UIAlertController(
+                title: "New Requests",
+                message: message,
+                preferredStyle: .alert
+            )
+
+            ac.addAction(UIAlertAction(title: "View", style: .default, handler: { _ in
+                // Clear the newRequests array
+                self.clearNewRequests(newRequests)
+
+                // TODO: navigate to your "My Requests" / "Inbox" screen
+                // e.g. self.tabBarController?.selectedIndex = 2
+            }))
+
+            ac.addAction(UIAlertAction(title: "Dismiss", style: .cancel, handler: { _ in
+                // Even if dismissed, we consider them "seen"
+                self.clearNewRequests(newRequests)
+            }))
+
+            // Avoid stacking multiple alerts (just in case)
+            if self.presentedViewController == nil {
+                self.present(ac, animated: true)
+            }
+        }
+    }
+    
+    private func clearNewRequests(_ requestIds: [String]) {
+        guard let uid = Auth.auth().currentUser?.uid else { return }
+
+        let userRef = db.collection("users").document(uid)
+
+        // Remove those IDs from the array
+        userRef.updateData([
+            "newRequests": FieldValue.arrayRemove(requestIds)
+        ]) { error in
+            if let error = error {
+                print("Failed to clear newRequests: \(error.localizedDescription)")
+            }
+        }
     }
 
     
