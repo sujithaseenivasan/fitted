@@ -33,7 +33,7 @@ class ClosetFeedViewController: UIViewController {
         ], for: .normal)
         
         segmentedControl.setTitleTextAttributes([
-            .foregroundColor: UIColor.black,
+            .foregroundColor: UIColor(named: "SecondaryPink") ?? .darkGray,
             .font: UIFont.systemFont(ofSize: 16, weight: .semibold)
         ], for: .selected)
         
@@ -60,7 +60,7 @@ class ClosetFeedViewController: UIViewController {
     }
 
     private func configureUnderline() {
-        underlineView.backgroundColor = .black
+        underlineView.backgroundColor = UIColor(named: "SecondaryPink") ?? .black
         underlineView.translatesAutoresizingMaskIntoConstraints = false
         segmentedControl.addSubview(underlineView)
 

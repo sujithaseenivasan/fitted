@@ -29,12 +29,76 @@ class ManageRequestsViewController: UIViewController {
 
     private var currentChild: UIViewController?
     
+    private let underlineView = UIView()
+    private var underlineLeadingConstraint: NSLayoutConstraint?
+    
     override func viewDidLoad() {
         super.viewDidLoad()
+        
+        segmentedControl.backgroundColor = .clear
+        segmentedControl.selectedSegmentTintColor = .clear
+        
+        segmentedControl.setTitleTextAttributes([
+            .foregroundColor: UIColor.darkGray,
+            .font: UIFont.systemFont(ofSize: 16, weight: .regular)
+        ], for: .normal)
+        
+        segmentedControl.setTitleTextAttributes([
+            .foregroundColor: UIColor(named: "SecondaryPink") ?? .darkGray,
+            .font: UIFont.systemFont(ofSize: 16, weight: .semibold)
+        ], for: .selected)
 
         segmentedControl.selectedSegmentIndex = 0
         showChild(myRequestsVC)
     }
+    
+    override func viewDidLayoutSubviews() {
+        super.viewDidLayoutSubviews()
+        
+        // Only set up once, after segmentedControl has its final frame
+        if underlineView.superview == nil {
+            configureUnderline()
+        }
+        
+        // Keep underline in the correct position on layout changes
+        updateUnderlinePosition(animated: false)
+    }
+    
+    private func configureUnderline() {
+        underlineView.backgroundColor = UIColor(named: "SecondaryPink") ?? .black
+        underlineView.translatesAutoresizingMaskIntoConstraints = false
+        segmentedControl.addSubview(underlineView)
+        
+        let segmentWidth = segmentedControl.bounds.width / CGFloat(segmentedControl.numberOfSegments)
+        
+        underlineLeadingConstraint = underlineView
+            .leadingAnchor
+            .constraint(equalTo: segmentedControl.leadingAnchor)
+        
+        NSLayoutConstraint.activate([
+            underlineLeadingConstraint!,
+            underlineView.bottomAnchor.constraint(equalTo: segmentedControl.bottomAnchor, constant: 2),
+            underlineView.heightAnchor.constraint(equalToConstant: 2),
+            underlineView.widthAnchor.constraint(equalToConstant: segmentWidth)
+        ])
+    }
+    
+    private func updateUnderlinePosition(animated: Bool) {
+        let segmentWidth = segmentedControl.bounds.width / CGFloat(segmentedControl.numberOfSegments)
+        underlineLeadingConstraint?.constant = segmentWidth * CGFloat(segmentedControl.selectedSegmentIndex)
+        
+        let animations = {
+            self.segmentedControl.layoutIfNeeded()
+        }
+        
+        if animated {
+            UIView.animate(withDuration: 0.25, animations: animations)
+        } else {
+            animations()
+        }
+    }
+    
+    
     
     @IBAction func segmentedControlSwitch(_ sender: UISegmentedControl) {
         switch sender.selectedSegmentIndex {
@@ -45,6 +109,8 @@ class ManageRequestsViewController: UIViewController {
         default:
             break
         }
+        // move underline when segment changes
+        updateUnderlinePosition(animated: true)
     }
     
     private func showChild(_ vc: UIViewController) {
