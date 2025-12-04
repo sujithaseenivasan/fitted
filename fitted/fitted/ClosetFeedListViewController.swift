@@ -1,5 +1,5 @@
 //
-//  ClosetFeedListViewController.swift
+//   
 //  fitted
 //
 //  Created by Sarah Neville on 11/11/25.
@@ -105,60 +105,34 @@ class ClosetFeedListViewController: UIViewController, UITableViewDataSource, UIT
 
                     var name = [first, last].filter { !$0.isEmpty }.joined(separator: " ")
                     if name.isEmpty {
-                        // optional: fall back to email if you want something more helpful than "Unknown"
                         name = data["email"] as? String ?? "Unknown"
                     }
 
-                    // cache it
+                    // NEW: get profile picture URL from the *user* doc
+                    let profileURL = data["profilePictureURL"] as? String
+
+                    // cache the name if you want to keep that behavior
                     self.userNameCache[ownerUID] = name
 
                     DispatchQueue.main.async {
                         if let visible = tableView.cellForRow(at: indexPath) as? ClosetFeedCell {
                             visible.nameLabel.text = name
+                            // make sure ClosetFeedCell has this outlet
+                            visible.profileImage.setImage(from: profileURL,
+                                                          placeholder: UIImage(named: "DefaultAvatar"))
                         }
                     }
                 }
             }
         }
+
 
 
         // title
         cell.titleLabel.text = item["name"] as? String ?? ""
-
-        // Load the item image if stored as a URL string
-        if let urlString = item["image"] as? String {
-            let targetIndexPath = indexPath
-
-            if urlString.hasPrefix("gs://") {
-                // Firebase Storage path
-                let ref = Storage.storage().reference(forURL: urlString)
-                ref.getData(maxSize: 5 * 1024 * 1024) { data, error in
-                    guard let data = data, error == nil,
-                          let img = UIImage(data: data) else { return }
-
-                    DispatchQueue.main.async {
-                        if let visible = tableView.cellForRow(at: targetIndexPath) as? ClosetFeedCell {
-                            visible.itemImage.image = img
-                        }
-                    }
-                }
-            } else if let url = URL(string: urlString) {
-                // Regular HTTPS URL
-                URLSession.shared.dataTask(with: url) { data, _, _ in
-                    if let data = data, let img = UIImage(data: data) {
-                        DispatchQueue.main.async {
-                            if let visible = tableView.cellForRow(at: targetIndexPath) as? ClosetFeedCell {
-                                visible.itemImage.image = img
-                            }
-                        }
-                    }
-                }.resume()
-            }
-        } else {
-            cell.itemImage.image = nil
-        }
-
-
+        
+        cell.itemImage.setImage(from: item["image"] as? String)
+        
         return cell
     }
     
@@ -180,6 +154,33 @@ class ClosetFeedListViewController: UIViewController, UITableViewDataSource, UIT
             navigationController?.pushViewController(detailVC, animated: true)
         }
     }
-
-
 }
+
+extension UIImageView {
+    func setImage(from urlString: String?, placeholder: UIImage? = nil) {
+        self.image = placeholder
+
+        guard let urlString = urlString else { return }
+
+        // Firebase Storage path
+        if urlString.hasPrefix("gs://") {
+            let ref = Storage.storage().reference(forURL: urlString)
+            ref.getData(maxSize: 5 * 1024 * 1024) { data, error in
+                guard let data = data, error == nil,
+                      let img = UIImage(data: data) else { return }
+                DispatchQueue.main.async { self.image = img }
+            }
+            return
+        }
+
+        // Regular https URL
+        guard let url = URL(string: urlString) else { return }
+
+        URLSession.shared.dataTask(with: url) { data, _, _ in
+            if let data = data, let img = UIImage(data: data) {
+                DispatchQueue.main.async { self.image = img }
+            }
+        }.resume()
+    }
+}
+

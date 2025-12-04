@@ -19,7 +19,8 @@ class ClosetFeedCell: UITableViewCell {
     
     override func awakeFromNib() {
         super.awakeFromNib()
-        // Initialization code
+        profileImage.layer.cornerRadius = profileImage.frame.width / 2
+        profileImage.clipsToBounds = true
     }
 
     override func setSelected(_ selected: Bool, animated: Bool) {
