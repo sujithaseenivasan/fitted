@@ -59,11 +59,27 @@ class GroupsJoinViewController: UIViewController {
 
                 let groupDocId = doc.documentID
                 let userRef = self.db.collection("users").document(uid)
+                let groupRef = self.db.collection("groups").document(groupDocId)
 
-                userRef.setData(["joinedGroups": FieldValue.arrayUnion([groupDocId])],
-                                merge: true) { writeErr in
-                    if let writeErr = writeErr {
-                        self.showAlert(title: "Error", message: "Failed to add group: \(writeErr.localizedDescription)")
+                // Write both changes in a batch: user.joinedGroups and group.group_members
+                let batch = self.db.batch()
+
+                batch.setData(
+                    ["joinedGroups": FieldValue.arrayUnion([groupDocId])],
+                    forDocument: userRef,
+                    merge: true
+                )
+
+                batch.updateData(
+                    ["group_members": FieldValue.arrayUnion([uid])],
+                    forDocument: groupRef
+                )
+
+                batch.commit { [weak self] error in
+                    guard let self = self else { return }
+
+                    if let error = error {
+                        self.showAlert(title: "Error", message: "Failed to join group: \(error.localizedDescription)")
                         return
                     }
 
@@ -75,12 +91,12 @@ class GroupsJoinViewController: UIViewController {
                             preferredStyle: .alert
                         )
                         ac.addAction(UIAlertAction(title: "OK", style: .default) { _ in
-                            // Go back once the alert is dismissed
                             self.navigationController?.popViewController(animated: true)
                         })
                         self.present(ac, animated: true, completion: nil)
                     }
                 }
+
             }
     }
 
