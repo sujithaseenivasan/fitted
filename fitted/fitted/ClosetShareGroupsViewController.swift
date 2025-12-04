@@ -73,11 +73,24 @@ class ClosetShareGroupsViewController: UIViewController, UICollectionViewDataSou
             )
 
             ac.addAction(UIAlertAction(title: "View", style: .default, handler: { _ in
-                // Clear the newRequests array
+                // 1) Clear the newRequests array
                 self.clearNewRequests(newRequests)
 
-                // TODO: navigate to your "My Requests" / "Inbox" screen
-                // e.g. self.tabBarController?.selectedIndex = 2
+                // 2) Navigate to ManageRequestsViewController
+                let sb = UIStoryboard(name: "Main", bundle: nil)
+                guard let manageVC = sb.instantiateViewController(
+                    withIdentifier: "ManageRequestsViewController"
+                ) as? ManageRequestsViewController else {
+                    return
+                }
+
+                // If this screen is inside a navigation controller (most common case):
+                if let nav = self.navigationController {
+                    nav.pushViewController(manageVC, animated: true)
+                } else {
+                    // Fallback if there's no nav controller
+                    self.present(manageVC, animated: true)
+                }
             }))
 
             ac.addAction(UIAlertAction(title: "Dismiss", style: .cancel, handler: { _ in

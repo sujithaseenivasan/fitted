@@ -13,6 +13,8 @@ import FirebaseStorage
 struct MyRequest {
     let id: String
     let status: String
+    let itemId: String           // <-- add this
+    let ownerId: String?         // <-- add this
     let itemName: String
     let itemImageURL: String?
     let ownerName: String?
@@ -109,9 +111,12 @@ class MyRequestsViewController: UIViewController, UITableViewDataSource, UITable
                 }
 
                 inner.notify(queue: .main) {
+                    print("🔍 Request \(reqId) has eventId=\(eventId ?? "nil")")
                     let req = MyRequest(
                         id: reqId,
                         status: status,
+                        itemId: itemId,
+                        ownerId: ownerId,
                         itemName: itemName,
                         itemImageURL: imageURL,
                         ownerName: ownerName,
@@ -143,6 +148,8 @@ class MyRequestsViewController: UIViewController, UITableViewDataSource, UITable
                                                  for: indexPath) as! MyRequestsTableViewCell
 
         let req = requests[indexPath.row]
+        
+        cell.delegate = self
 
         // Item title
         cell.titleLabel.text = req.itemName
@@ -155,7 +162,7 @@ class MyRequestsViewController: UIViewController, UITableViewDataSource, UITable
 
         // For now we don't have group / event info in the request doc,
         // so we leave these empty.
-        cell.groupLabel.text = req.groupId
+        //cell.groupLabel.text = req.groupId
         cell.eventLabel.text = req.eventId
 
         // Clear old image
@@ -193,5 +200,76 @@ class MyRequestsViewController: UIViewController, UITableViewDataSource, UITable
 
         return cell
     }
+    
+    private func cancelRequest(_ request: MyRequest, at indexPath: IndexPath) {
+        guard let currentUid = Auth.auth().currentUser?.uid else { return }
+
+        let batch = db.batch()
+
+        let requesterRef = db.collection("users").document(currentUid)
+        let requestRef   = db.collection("requests").document(request.id)
+
+        // Remove from outgoingRequests for current user
+        batch.updateData([
+            "outgoingRequests": FieldValue.arrayRemove([request.id])
+        ], forDocument: requesterRef)
+
+        // Remove from incomingRequests / newRequests for owner
+        if let ownerId = request.ownerId {
+            let ownerRef = db.collection("users").document(ownerId)
+            batch.updateData([
+                "incomingRequests": FieldValue.arrayRemove([request.id]),
+                "newRequests": FieldValue.arrayRemove([request.id])
+            ], forDocument: ownerRef)
+        }
+
+        // Option 1: delete the request document entirely
+        batch.deleteDocument(requestRef)
+
+        // Optionally: reset the item status to available
+        if !request.itemId.isEmpty {
+            let itemRef = db.collection("closet_items").document(request.itemId)
+            batch.updateData([
+                "status": "available",
+                "requestedBy": FieldValue.delete()
+            ], forDocument: itemRef)
+        }
+
+        batch.commit { [weak self] error in
+            guard let self = self else { return }
+            if let error = error {
+                print("Failed to cancel request: \(error.localizedDescription)")
+                // You could show an alert here if you want
+                return
+            }
+
+            // Update local model + table
+            self.requests.remove(at: indexPath.row)
+            self.tableView.deleteRows(at: [indexPath], with: .automatic)
+        }
+    }
 
 }
+
+//Cell Delegate
+extension MyRequestsViewController: MyRequestsTableViewCellDelegate {
+    func myRequestsCellDidTapCancel(_ cell: MyRequestsTableViewCell) {
+        guard let indexPath = tableView.indexPath(for: cell) else { return }
+        let req = requests[indexPath.row]
+
+        let ac = UIAlertController(
+            title: "Cancel Request",
+            message: "Are you sure you want to cancel your request for \"\(req.itemName)\"?",
+            preferredStyle: .alert
+        )
+
+        ac.addAction(UIAlertAction(title: "Keep Request", style: .cancel, handler: nil))
+
+        ac.addAction(UIAlertAction(title: "Cancel Request", style: .destructive, handler: { _ in
+            self.cancelRequest(req, at: indexPath)
+        }))
+
+        present(ac, animated: true)
+    }
+}
+
