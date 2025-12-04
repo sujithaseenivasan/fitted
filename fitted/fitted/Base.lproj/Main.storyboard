@@ -1237,19 +1237,19 @@
                                                     </constraints>
                                                 </imageView>
                                                 <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Label" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="PEh-Or-ahs">
-                                                    <rect key="frame" x="0.0" y="144" width="159" height="21"/>
+                                                    <rect key="frame" x="15" y="144" width="129" height="21"/>
                                                     <fontDescription key="fontDescription" type="system" pointSize="17"/>
                                                     <nil key="textColor"/>
                                                     <nil key="highlightedColor"/>
                                                 </label>
                                             </subviews>
                                             <constraints>
+                                                <constraint firstItem="PEh-Or-ahs" firstAttribute="leading" secondItem="T44-pc-Wcq" secondAttribute="leading" constant="15" id="Czj-kb-FYN"/>
+                                                <constraint firstAttribute="trailing" secondItem="PEh-Or-ahs" secondAttribute="trailing" constant="15" id="Hcp-kB-6gr"/>
                                                 <constraint firstItem="PEh-Or-ahs" firstAttribute="top" secondItem="0eo-mi-KEQ" secondAttribute="bottom" constant="8" id="PFF-ex-QWc"/>
                                                 <constraint firstAttribute="trailing" secondItem="0eo-mi-KEQ" secondAttribute="trailing" constant="15" id="Rx2-lR-vDX"/>
                                                 <constraint firstItem="0eo-mi-KEQ" firstAttribute="leading" secondItem="T44-pc-Wcq" secondAttribute="leading" constant="15" id="cAG-g7-9Mj"/>
                                                 <constraint firstItem="0eo-mi-KEQ" firstAttribute="top" secondItem="T44-pc-Wcq" secondAttribute="top" constant="8" id="nPT-RV-WDR"/>
-                                                <constraint firstAttribute="trailing" secondItem="PEh-Or-ahs" secondAttribute="trailing" id="t0u-ck-tfi"/>
-                                                <constraint firstItem="PEh-Or-ahs" firstAttribute="leading" secondItem="T44-pc-Wcq" secondAttribute="leading" id="w8r-O0-igK"/>
                                             </constraints>
                                         </collectionViewCellContentView>
                                         <size key="customSize" width="159" height="168"/>
