@@ -50,7 +50,7 @@ class ManageMembersViewController: UIViewController, UITableViewDataSource, UITa
                         let last  = userData["lastName"]  as? String ?? ""
                         let fullName = [first, last].filter { !$0.isEmpty }.joined(separator: " ")
 
-                        let profilePath = userData["profilePicture"] as? String
+                        let profilePath = userData["profilePictureURL"] as? String
                         loaded.append(Member(name: fullName.isEmpty ? "Unknown" : fullName,
                                              profileImagePath: profilePath))
                     }
