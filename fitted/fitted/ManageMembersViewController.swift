@@ -10,6 +10,7 @@ import FirebaseFirestore
 import FirebaseStorage
 
 struct Member {
+    let uid: String
     let name: String
     let profileImagePath: String?
 }
@@ -51,8 +52,12 @@ class ManageMembersViewController: UIViewController, UITableViewDataSource, UITa
                         let fullName = [first, last].filter { !$0.isEmpty }.joined(separator: " ")
 
                         let profilePath = userData["profilePictureURL"] as? String
-                        loaded.append(Member(name: fullName.isEmpty ? "Unknown" : fullName,
-                                             profileImagePath: profilePath))
+                        let member = Member(
+                            uid: uid,
+                            name: fullName.isEmpty ? "Unknown" : fullName,
+                            profileImagePath: profilePath
+                        )
+                        loaded.append(member)
                     }
                     group.leave()
                 }
@@ -122,6 +127,54 @@ class ManageMembersViewController: UIViewController, UITableViewDataSource, UITa
 
         return cell
     }
+    
+    // Allow swipe-to-delete
+    func tableView(_ tableView: UITableView,
+                   canEditRowAt indexPath: IndexPath) -> Bool {
+        return true
+    }
+
+    func tableView(_ tableView: UITableView,
+                   commit editingStyle: UITableViewCell.EditingStyle,
+                   forRowAt indexPath: IndexPath) {
+        guard editingStyle == .delete else { return }
+
+        let member = members[indexPath.row]
+        let batch = db.batch()
+
+        // 1) groups/{groupId} → remove member.uid from group_members
+        let groupRef = db.collection("groups").document(groupId)
+        batch.updateData([
+            "group_members": FieldValue.arrayRemove([member.uid])
+        ], forDocument: groupRef)
+
+        // 2) users/{member.uid} → remove this groupId from joinedGroups
+        let userRef = db.collection("users").document(member.uid)
+        batch.updateData([
+            "joinedGroups": FieldValue.arrayRemove([groupId as Any])
+        ], forDocument: userRef)
+
+        // 3) events/{groupId} → remove member.uid from group_members
+        let eventGroupRef = db.collection("events").document(groupId)
+        batch.updateData([
+            "group_members": FieldValue.arrayRemove([member.uid])
+        ], forDocument: eventGroupRef)
+
+        batch.commit { [weak self] error in
+            guard let self = self else { return }
+
+            if let error = error {
+                print("Failed to remove member: \(error.localizedDescription)")
+                // optional: show alert here
+                return
+            }
+
+            // Update local data + UI
+            self.members.remove(at: indexPath.row)
+            tableView.deleteRows(at: [indexPath], with: .automatic)
+        }
+    }
+
 
 
 }
