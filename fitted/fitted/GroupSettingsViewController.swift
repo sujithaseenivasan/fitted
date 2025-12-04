@@ -9,18 +9,29 @@ import UIKit
 import FirebaseFirestore
 import FirebaseStorage
 
-class GroupSettingsViewController: UIViewController {
+class GroupSettingsViewController: UIViewController, UIImagePickerControllerDelegate, UINavigationControllerDelegate {
 
     @IBOutlet weak var groupPassLabel: UILabel!
     @IBOutlet weak var groupIdLabel: UILabel!
     @IBOutlet weak var groupNameLabel: UILabel!
     @IBOutlet weak var imageView: UIImageView!
     
+    @IBOutlet weak var manageMembersButton: UIButton!
+    @IBOutlet weak var editPhotoButton: UIButton!
+    
+    var groupId: String!
+    
     var group: Group!
     private let db = Firestore.firestore()
     
     override func viewDidLoad() {
         super.viewDidLoad()
+        
+        manageMembersButton.layer.cornerRadius = 12
+        manageMembersButton.clipsToBounds = true
+
+        editPhotoButton.layer.cornerRadius = 12
+        editPhotoButton.clipsToBounds = true
         loadGroupDetails()
     }
     
@@ -144,15 +155,51 @@ class GroupSettingsViewController: UIViewController {
     }
     
     @IBAction func editImagePressed(_ sender: Any) {
+        let picker = UIImagePickerController()
+        picker.sourceType = .photoLibrary  // default Photos
+        picker.allowsEditing = true
+        picker.delegate = self
+        present(picker, animated: true)
     }
-    /*
-    // MARK: - Navigation
+    
+    func imagePickerController(_ picker: UIImagePickerController,
+                               didFinishPickingMediaWithInfo info: [UIImagePickerController.InfoKey : Any]) {
 
-    // In a storyboard-based application, you will often want to do a little preparation before navigation
-    override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
-        // Get the new view controller using segue.destination.
-        // Pass the selected object to the new view controller.
+        let image = (info[.editedImage] ?? info[.originalImage]) as? UIImage
+        picker.dismiss(animated: true)
+
+        guard let selectedImage = image else { return }
+
+        // update UI
+        imageView.image = selectedImage
+
+        // upload to Firebase Storage and update Firestore
+        uploadGroupImage(selectedImage)
     }
-    */
+
+    func imagePickerControllerDidCancel(_ picker: UIImagePickerController) {
+        picker.dismiss(animated: true)
+    }
+    
+    private func uploadGroupImage(_ image: UIImage) {
+        guard let data = image.jpegData(compressionQuality: 0.9) else { return }
+
+        let storageRef = Storage.storage()
+            .reference()
+            .child("group_images/\(groupId ?? UUID().uuidString).jpg")
+
+        storageRef.putData(data, metadata: nil) { [weak self] _, error in
+            guard let self = self, error == nil else { return }
+
+            storageRef.downloadURL { url, _ in
+                guard let url = url else { return }
+
+                // store the new URL in the "image" field on the group doc
+                self.db.collection("groups")
+                    .document(self.groupId)
+                    .updateData(["image": url.absoluteString])
+            }
+        }
+    }
 
 }

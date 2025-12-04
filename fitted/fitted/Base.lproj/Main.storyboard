@@ -1168,10 +1168,12 @@
                         </constraints>
                     </view>
                     <connections>
+                        <outlet property="editPhotoButton" destination="HPx-oH-lp1" id="DGc-Ng-nzd"/>
                         <outlet property="groupIdLabel" destination="EfN-rm-13s" id="BYH-Ae-QPa"/>
                         <outlet property="groupNameLabel" destination="0Dq-hx-vxJ" id="lj7-1E-e5K"/>
                         <outlet property="groupPassLabel" destination="Yfc-bG-l5Q" id="lKv-VA-0Q6"/>
                         <outlet property="imageView" destination="H93-mD-wIG" id="wfZ-cD-i1F"/>
+                        <outlet property="manageMembersButton" destination="S1S-bW-Nry" id="6Zh-cr-Ff3"/>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="MMv-gf-iJr" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
