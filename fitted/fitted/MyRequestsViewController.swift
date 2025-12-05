@@ -13,8 +13,8 @@ import FirebaseStorage
 struct MyRequest {
     let id: String
     let status: String
-    let itemId: String           // <-- add this
-    let ownerId: String?         // <-- add this
+    let itemId: String
+    let ownerId: String?
     let itemName: String
     let itemImageURL: String?
     let ownerName: String?
@@ -34,6 +34,11 @@ class MyRequestsViewController: UIViewController, UITableViewDataSource, UITable
         tableView.dataSource = self
         tableView.delegate = self
         tableView.tableFooterView = UIView()
+        fetchOutgoingRequests()
+    }
+    
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
         fetchOutgoingRequests()
     }
     
