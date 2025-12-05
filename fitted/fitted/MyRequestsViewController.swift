@@ -20,7 +20,10 @@ struct MyRequest {
     let ownerName: String?
     let groupId: String?
     let eventId: String?
+    let groupName: String?
+    let eventName: String?
 }
+
 
 class MyRequestsViewController: UIViewController, UITableViewDataSource, UITableViewDelegate {
 
@@ -76,47 +79,73 @@ class MyRequestsViewController: UIViewController, UITableViewDataSource, UITable
                     return
                 }
 
-                let status = reqData["status"] as? String ?? "pending"
-                let itemId = reqData["itemId"] as? String ?? ""
+                let status  = reqData["status"] as? String ?? "pending"
+                let itemId  = reqData["itemId"] as? String ?? ""
                 let ownerId = reqData["ownerId"] as? String
-                
-                let groupId = reqData["groupId"] as? String
-                let eventId = reqData["eventId"] as? String
+
+                let groupId = reqData["groupId"] as? String ?? ""
+                let eventId = reqData["eventId"] as? String ?? ""
 
                 var itemName: String = ""
                 var imageURL: String?
                 var ownerName: String?
 
+                var groupName: String?
+                var eventName: String?
+
                 let inner = DispatchGroup()
 
-                // Fetch item info
+                // item
                 if !itemId.isEmpty {
                     inner.enter()
-                    self.db.collection("closet_items").document(itemId).getDocument { itemSnap, _ in
-                        if let itemData = itemSnap?.data() {
-                            itemName = itemData["name"] as? String ?? ""
-                            imageURL = itemData["image"] as? String
+                    self.db.collection("closet_items").document(itemId).getDocument { snap, _ in
+                        if let d = snap?.data() {
+                            itemName = d["name"] as? String ?? ""
+                            imageURL = d["image"] as? String
                         }
                         inner.leave()
                     }
                 }
 
-                // Fetch owner name
-                if let ownerId = ownerId {
+                // owner name
+                if let ownerId = ownerId, !ownerId.isEmpty {
                     inner.enter()
-                    self.db.collection("users").document(ownerId).getDocument { userSnap, _ in
-                        if let userData = userSnap?.data() {
-                            let first = userData["firstName"] as? String ?? ""
-                            let last  = userData["lastName"]  as? String ?? ""
-                            let full = [first, last].filter { !$0.isEmpty }.joined(separator: " ")
-                            ownerName = full.isEmpty ? (userData["username"] as? String ?? "Unknown") : full
+                    self.db.collection("users").document(ownerId).getDocument { snap, _ in
+                        if let u = snap?.data() {
+                            let first = u["firstName"] as? String ?? ""
+                            let last  = u["lastName"]  as? String ?? ""
+                            let full  = [first, last].filter { !$0.isEmpty }.joined(separator: " ")
+                            ownerName = full.isEmpty ? (u["username"] as? String ?? "Unknown") : full
+                        }
+                        inner.leave()
+                    }
+                }
+
+                // event name (note field: "event_name", like in MyInquiries)
+                if !eventId.isEmpty {
+                    inner.enter()
+                    self.db.collection("events").document(eventId).getDocument { snap, _ in
+                        if let d = snap?.data() {
+                            eventName = d["event_name"] as? String
+                        }
+                        inner.leave()
+                    }
+                }
+
+                // group name (note field: "group_name", like in MyInquiries)
+                if !groupId.isEmpty {
+                    inner.enter()
+                    self.db.collection("groups").document(groupId).getDocument { snap, _ in
+                        if let d = snap?.data() {
+                            groupName = d["group_name"] as? String
                         }
                         inner.leave()
                     }
                 }
 
                 inner.notify(queue: .main) {
-                    print("🔍 Request \(reqId) has eventId=\(eventId ?? "nil")")
+                    print("Request \(reqId) has eventId=\(eventId), groupId=\(groupId), eventName=\(eventName ?? "nil"), groupName=\(groupName ?? "nil")")
+
                     let req = MyRequest(
                         id: reqId,
                         status: status,
@@ -125,9 +154,12 @@ class MyRequestsViewController: UIViewController, UITableViewDataSource, UITable
                         itemName: itemName,
                         itemImageURL: imageURL,
                         ownerName: ownerName,
-                        groupId: groupId,
-                        eventId: eventId
+                        groupId: groupId.isEmpty ? nil : groupId,
+                        eventId: eventId.isEmpty ? nil : eventId,
+                        groupName: groupName,
+                        eventName: eventName
                     )
+
                     built.append(req)
                     group.leave()
                 }
@@ -167,8 +199,13 @@ class MyRequestsViewController: UIViewController, UITableViewDataSource, UITable
 
         // For now we don't have group / event info in the request doc,
         // so we leave these empty.
-        //cell.groupLabel.text = req.groupId
-        cell.eventLabel.text = req.eventId
+    
+
+        if let e = req.eventName {
+            cell.eventLabel.text = "Event: \(e)"
+        } else {
+            cell.eventLabel.text = nil
+        }
 
         // Clear old image
         cell.itemImage.image = nil

@@ -159,6 +159,53 @@ class MyInquiriesViewController: UIViewController,
         }
     }
     
+    private func deleteInquiry(_ inquiry: MyInquiry, at indexPath: IndexPath) {
+        guard let ownerUid = Auth.auth().currentUser?.uid else { return }
+
+        let batch = db.batch()
+
+        let requestRef   = db.collection("requests").document(inquiry.id)
+        let requesterRef = db.collection("users").document(inquiry.requesterId)
+        let ownerRef     = db.collection("users").document(ownerUid)
+
+        // Remove from requester's outgoingRequests
+        batch.updateData([
+            "outgoingRequests": FieldValue.arrayRemove([inquiry.id])
+        ], forDocument: requesterRef)
+
+        // Remove from owner's incomingRequests and newRequests
+        batch.updateData([
+            "incomingRequests": FieldValue.arrayRemove([inquiry.id]),
+            "newRequests": FieldValue.arrayRemove([inquiry.id])
+        ], forDocument: ownerRef)
+
+        // Delete the request document
+        batch.deleteDocument(requestRef)
+
+        // Optionally reset item status -> available
+        if !inquiry.itemId.isEmpty {
+            let itemRef = db.collection("closet_items").document(inquiry.itemId)
+            batch.updateData([
+                "status": "available",
+                "requestedBy": FieldValue.delete()
+            ], forDocument: itemRef)
+        }
+
+        batch.commit { [weak self] error in
+            guard let self = self else { return }
+            if let error = error {
+                print("Failed to delete inquiry: \(error.localizedDescription)")
+                // (Optional) show an alert here
+                return
+            }
+
+            // Update local model + table
+            self.inquiries.remove(at: indexPath.row)
+            self.tableView.deleteRows(at: [indexPath], with: .automatic)
+        }
+    }
+
+    
     // MARK: - TableView
     
     func tableView(_ tableView: UITableView,
@@ -224,6 +271,32 @@ class MyInquiriesViewController: UIViewController,
         
         return cell
     }
+    
+    // Allow editing
+    func tableView(_ tableView: UITableView,
+                   canEditRowAt indexPath: IndexPath) -> Bool {
+        return true
+    }
+
+    // Swipe-to-delete behavior (iOS 11+ style – more flexible)
+    func tableView(_ tableView: UITableView,
+                   trailingSwipeActionsConfigurationForRowAt indexPath: IndexPath)
+    -> UISwipeActionsConfiguration? {
+
+        let deleteAction = UIContextualAction(style: .destructive,
+                                              title: "Delete") { [weak self] _, _, completion in
+            guard let self = self else {
+                completion(false)
+                return
+            }
+            let inquiry = self.inquiries[indexPath.row]
+            self.deleteInquiry(inquiry, at: indexPath)
+            completion(true)
+        }
+
+        return UISwipeActionsConfiguration(actions: [deleteAction])
+    }
+
     
     private func configureStatusUI(for cell: MyInquiriesTableViewCell,
                                    inquiry: MyInquiry) {

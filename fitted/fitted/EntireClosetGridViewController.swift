@@ -417,6 +417,7 @@ class EntireClosetGridViewController: UIViewController,
 
         // Fetch the full closet_items document so ItemDetailVC
         // gets all fields (description, brand, owner, etc.)
+       
         db.collection("closet_items").document(selectedItem.id).getDocument { [weak self] snap, _ in
             guard
                 let self = self,
@@ -429,23 +430,14 @@ class EntireClosetGridViewController: UIViewController,
                     withIdentifier: "ItemDetailViewController"
                 ) as? ItemDetailViewController else { return }
 
-                // pass the item dictionary to ItemDetailViewController
                 detailVC.itemId = selectedItem.id
-                detailVC.itemData = [
-                    "name": selectedItem.name,
-                    "size": selectedItem.size as Any,
-                    "price": selectedItem.price as Any,
-                    "color": selectedItem.color as Any,
-                    "clothing_type": selectedItem.type as Any,
-                    "imageURL": selectedItem.imageURL as Any
-                ]
-                
+                detailVC.itemData = data
                 detailVC.eventId = self.eventId
-                detailVC.groupId
-
+                
                 self.navigationController?.pushViewController(detailVC, animated: true)
             }
         }
+
     }
     
     func collectionView(_ collectionView: UICollectionView,

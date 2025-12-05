@@ -104,12 +104,6 @@ class CreateAccountViewController: UIViewController, UITextFieldDelegate {
                 }
             }
         }
-        if !self.didSwapRoot {
-            self.errorLabel.text = ""
-            self.didSwapRoot = true
-            self.clearFields()
-            self.switchToMainApp()
-        }
     }
 
     func clearFields() {
