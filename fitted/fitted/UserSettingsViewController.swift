@@ -282,12 +282,41 @@ final class UserSettingsViewController: UIViewController {
     }
 
     private func loadAvatarFromURL() {
-        guard let urlStr = profile.profilePictureURL, let url = URL(string: urlStr) else { return }
-        URLSession.shared.dataTask(with: url) { [weak self] data, _, _ in
-            guard let self = self, let data = data, let img = UIImage(data: data) else { return }
-            DispatchQueue.main.async { self.avatarImageView.image = img }
-        }.resume()
+        guard let urlStr = profile.profilePictureURL,
+              !urlStr.isEmpty else { return }
+
+        // If it's a Firebase Storage gs:// path
+        if urlStr.hasPrefix("gs://") {
+            let ref = Storage.storage().reference(forURL: urlStr)
+            ref.getData(maxSize: 5 * 1024 * 1024) { [weak self] data, error in
+                guard let self = self,
+                      let data = data,
+                      error == nil,
+                      let img = UIImage(data: data) else {
+                    if let error = error {
+                        print("Failed to load avatar from Storage:", error.localizedDescription)
+                    }
+                    return
+                }
+                DispatchQueue.main.async {
+                    self.avatarImageView.image = img
+                }
+            }
+
+        // Otherwise assume it's a normal https URL
+        } else if let url = URL(string: urlStr) {
+            URLSession.shared.dataTask(with: url) { [weak self] data, _, error in
+                guard let self = self,
+                      let data = data,
+                      error == nil,
+                      let img = UIImage(data: data) else { return }
+                DispatchQueue.main.async {
+                    self.avatarImageView.image = img
+                }
+            }.resume()
+        }
     }
+
     
     @objc private func ownedGroupsTapped() {
         // Instantiate from storyboard by ID
