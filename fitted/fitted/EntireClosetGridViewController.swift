@@ -55,8 +55,6 @@ class EntireClosetGridViewController: UIViewController,
     @IBOutlet weak var collectionView: UICollectionView!
 
     @IBOutlet weak var filterBarContainer: UIView!
-
-    // Filter buttons (add 4 buttons in storyboard and hook them up)
     @IBOutlet weak var sizeButton: UIButton!
     @IBOutlet weak var typeButton: UIButton!
     @IBOutlet weak var priceButton: UIButton!
@@ -65,7 +63,7 @@ class EntireClosetGridViewController: UIViewController,
     @IBOutlet weak var filterStackView: UIStackView!
     // MARK: - Data
 
-    var eventId: String!               // set this before pushing VC
+    var eventId: String!
 
     private let db = Firestore.firestore()
 
@@ -73,13 +71,11 @@ class EntireClosetGridViewController: UIViewController,
     private var filteredItems: [EntireClosetItem] = []
     private var cachedItemWidth: CGFloat = 0
 
-    // current filter selections
     private var selectedSize: String?
     private var selectedType: String?
     private var selectedColor: String?
     private var priceSort: PriceSort = .none
 
-    // MARK: - Lifecycle
 
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -90,16 +86,15 @@ class EntireClosetGridViewController: UIViewController,
         for subview in filterStackView.arrangedSubviews {
             subview.layer.borderWidth = 1
             subview.layer.borderColor = UIColor.black.cgColor
-            subview.layer.cornerRadius = 0   // or some radius if you want
+            subview.layer.cornerRadius = 0
             subview.clipsToBounds = true
         }
 
         if let layout = collectionView.collectionViewLayout as? UICollectionViewFlowLayout {
-            layout.minimumInteritemSpacing = 8       // space between items in a row
-            layout.minimumLineSpacing      = 20      // vertical space between rows
+            layout.minimumInteritemSpacing = 8
+            layout.minimumLineSpacing      = 20
         }
 
-        // some bottom padding so last row isn't under tab bar
         collectionView.contentInset = UIEdgeInsets(top: 12, left: 0, bottom: 80, right: 0)
 
         resetFilterButtonTitles()
@@ -109,7 +104,6 @@ class EntireClosetGridViewController: UIViewController,
     
     override func viewDidLayoutSubviews() {
         super.viewDidLayoutSubviews()
-        //addFilterBarLines()
     }
 
 

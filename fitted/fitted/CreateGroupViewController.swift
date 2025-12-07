@@ -16,7 +16,7 @@ class CreateGroupViewController: UIViewController {
     // MARK: - Outlets
 
     @IBOutlet weak var groupNameTextField: UITextField!
-    @IBOutlet weak var groupIdTextField: UITextField!          // human-readable id (stored in "id" field)
+    @IBOutlet weak var groupIdTextField: UITextField!
     @IBOutlet weak var groupPasscodeTextField: UITextField!
     @IBOutlet weak var groupDescriptionTextField: UITextView!
     @IBOutlet weak var groupPhotoImageView: UIImageView!
@@ -51,8 +51,6 @@ class CreateGroupViewController: UIViewController {
         createGroup()
     }
 
-    // MARK: - Core logic
-
     private func createGroup() {
         guard
             let currentUser = Auth.auth().currentUser,
@@ -71,26 +69,23 @@ class CreateGroupViewController: UIViewController {
         let description = groupDescriptionTextField.text ?? ""
         let db = Firestore.firestore()
 
-        // Create a new document with an auto-generated ID.
         let groupDocRef = db.collection("groups").document()
-        let groupDocId = groupDocRef.documentID   // THIS is what will go in owned_groups
-
-        // Helper: finalize Firestore writes after (optional) image upload
+        let groupDocId = groupDocRef.documentID
+        
         func finishCreateGroup(imagePath: String?) {
             var groupData: [String: Any] = [
                 "description": description,
-                "events": [String](),             // start with empty events array
+                "events": [String](),
                 "group_members": [currentUser.uid],
                 "group_name": name,
-                "id": humanReadableId,            // your text field -> "id" field
+                "id": humanReadableId,
                 "owner": currentUser.uid,
                 "password": passcode
             ]
             if let path = imagePath {
-                groupData["image"] = path         // match Firestore field name "image"
+                groupData["image"] = path
             }
 
-            // 1) Save to groups/<auto doc id>
             groupDocRef.setData(groupData) { error in
                 if let error = error {
                     print("Error saving group:", error.localizedDescription)
@@ -99,7 +94,6 @@ class CreateGroupViewController: UIViewController {
                     return
                 }
 
-                // 2) Append *document id* to users/{uid}.owned_groups
                 db.collection("users").document(currentUser.uid)
                     .setData(["owned_groups": FieldValue.arrayUnion([groupDocId])],
                              merge: true) { err in
@@ -113,11 +107,9 @@ class CreateGroupViewController: UIViewController {
             }
         }
 
-        // If image exists, upload to Storage first, else just create Firestore doc
         if let image = groupPhotoImageView.image,
            let data = image.jpegData(compressionQuality: 0.85) {
 
-            // store image under the *document id* so it matches the ownership reference
             let storageRef = Storage.storage()
                 .reference()
                 .child("group_photos/\(groupDocId).jpg")
@@ -128,23 +120,17 @@ class CreateGroupViewController: UIViewController {
             storageRef.putData(data, metadata: metadata) { _, error in
                 if let error = error {
                     print("Error uploading group photo:", error.localizedDescription)
-                    // Still create group without image path
+
                     finishCreateGroup(imagePath: nil)
                     return
                 }
 
-                // If you want a gs:// style path similar to your screenshot:
-                // let path = "gs://\(Storage.storage().reference().bucket)/group_photos/\(groupDocId).jpg"
-                // finishCreateGroup(imagePath: path)
-
-                // Or if you prefer https download URL instead, you can use:
                 storageRef.downloadURL { url, _ in
                     let path = url?.absoluteString
                     finishCreateGroup(imagePath: path)
                 }
             }
         } else {
-            // No photo selected
             finishCreateGroup(imagePath: nil)
         }
     }

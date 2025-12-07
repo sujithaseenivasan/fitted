@@ -32,18 +32,6 @@ class CreateAccountViewController: UIViewController, UITextFieldDelegate {
     override func viewDidLoad() {
         super.viewDidLoad()
         self.errorLabel.text = ""
-//        createAccountTextLabel.font = UIFont(name: "Manjari-Regular", size: 32)
-//        newToFittedTextLabel.font = UIFont(name: "Manjari-Regular", size: 20)
-//        firstNameField.font = UIFont(name: "Manjari-Regular", size: 16)
-//        lastNameField.font = UIFont(name: "Manjari-Regular", size: 16)
-//        emailField.font = UIFont(name: "Manjari-Regular", size: 16)
-//        phoneNumberField.font = UIFont(name: "Manjari-Regular", size: 16)
-//        passwordField.font = UIFont(name: "Manjari-Regular", size: 16)
-//        reenterPasswordField.font = UIFont(name: "Manjari-Regular", size: 16)
-//        alreadyHaveAccountButton.titleLabel?.font = UIFont(name: "Manjari-Regular", size: 16)
-//        createAccountButton.titleLabel?.font = UIFont(name: "Manjari-Regular", size: 18)
-//        errorLabel.font = UIFont(name: "Manjari-Regular", size: 16)
-        
         for field in [firstNameField, lastNameField, emailField, phoneNumberField, passwordField, reenterPasswordField] {
             field?.delegate = self
         }
@@ -121,7 +109,6 @@ class CreateAccountViewController: UIViewController, UITextFieldDelegate {
 
             tab.modalPresentationStyle = .fullScreen
 
-            // iOS 13+ with SceneDelegate
             if let windowScene = view.window?.windowScene,
                let sceneDelegate = windowScene.delegate as? SceneDelegate {
                 sceneDelegate.window?.rootViewController = tab

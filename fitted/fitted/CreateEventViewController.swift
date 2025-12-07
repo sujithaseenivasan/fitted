@@ -54,17 +54,16 @@ class CreateEventViewController: UIViewController, UIImagePickerControllerDelega
     @objc private func endEditing() { view.endEditing(true) }
     
     private func setupPickers() {
-            // Date picker (date only)
+            
             datePicker.datePickerMode = .date
             if #available(iOS 13.4, *) { datePicker.preferredDatePickerStyle = .wheels }
             eventDateField.inputView = datePicker
 
-            // Time picker (time only)
+            
             timePicker.datePickerMode = .time
             if #available(iOS 13.4, *) { timePicker.preferredDatePickerStyle = .wheels }
             eventTimeField.inputView = timePicker
 
-            // Accessory toolbar with Done button (shared)
             let toolbar = UIToolbar()
             toolbar.sizeToFit()
             let done = UIBarButtonItem(barButtonSystemItem: .done, target: self, action: #selector(handlePickersDone))
@@ -72,11 +71,9 @@ class CreateEventViewController: UIViewController, UIImagePickerControllerDelega
             eventDateField.inputAccessoryView = toolbar
             eventTimeField.inputAccessoryView = toolbar
 
-            // Initial display text
             updateDateFieldText()
             updateTimeFieldText()
 
-            // Live updates while scrolling wheels
             datePicker.addTarget(self, action: #selector(updateDateFieldText), for: .valueChanged)
             timePicker.addTarget(self, action: #selector(updateTimeFieldText), for: .valueChanged)
         }
@@ -101,7 +98,6 @@ class CreateEventViewController: UIViewController, UIImagePickerControllerDelega
             eventTimeField.text = tf.string(from: timePicker.date)
         }
 
-        // Combine date-only + time-only into one Date
         private func combine(date: Date, time: Date) -> Date {
             let cal = Calendar.current
             let d = cal.dateComponents([.year, .month, .day], from: date)
@@ -133,6 +129,7 @@ class CreateEventViewController: UIViewController, UIImagePickerControllerDelega
             eventPhotoImageView.image = image
             dismiss(animated: true)
         }
+    
     func imagePickerControllerDidCancel(_ picker: UIImagePickerController) {
             dismiss(animated: true)
         }
@@ -154,7 +151,6 @@ class CreateEventViewController: UIViewController, UIImagePickerControllerDelega
     let eventRef = db.collection("events").document()
     let eventId = eventRef.documentID
 
-    // Upload image if present, then write Firestore
     if let image = eventPhotoImageView.image, let jpeg = image.jpegData(compressionQuality: 0.85) {
         let path = "event_images/\(groupId)/\(eventId).jpg"
         let storageRef = storage.reference().child(path)
@@ -182,7 +178,6 @@ class CreateEventViewController: UIViewController, UIImagePickerControllerDelega
             }
         }
     } else {
-        // No image — just write Firestore
         writeEventAndLinkToGroup(eventRef: eventRef,
                                  eventId: eventId,
                                  name: name,
@@ -200,7 +195,6 @@ private func writeEventAndLinkToGroup(eventRef: DocumentReference,
                                       location: String,
                                       time: Date,
                                       imageURL: String?) {
-    // Build event document
     var eventData: [String: Any] = [
         "event_name": name,
         "description": description,
@@ -209,7 +203,6 @@ private func writeEventAndLinkToGroup(eventRef: DocumentReference,
     ]
     if let imageURL = imageURL { eventData["image"] = imageURL }
 
-    // 1) Write event doc
     eventRef.setData(eventData) { [weak self] error in
         guard let self = self else { return }
         if let error = error {
@@ -217,7 +210,6 @@ private func writeEventAndLinkToGroup(eventRef: DocumentReference,
             return
         }
 
-        // 2) Link event to group
         self.db.collection("groups").document(self.groupId).updateData([
             "events": FieldValue.arrayUnion([eventId])
         ]) { err in
