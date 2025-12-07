@@ -202,4 +202,16 @@ class GroupSettingsViewController: UIViewController, UIImagePickerControllerDele
         }
     }
 
+    @IBAction func createEventButtonPressed(_ sender: Any) {
+        let sb = UIStoryboard(name: "Main", bundle: nil)
+        let vc = sb.instantiateViewController(
+            withIdentifier: "CreateEventViewController"
+        ) as! CreateEventViewController
+
+        // pass the group id into the event creator
+        vc.groupId = group.id
+        vc.hidesBottomBarWhenPushed = true
+
+        navigationController?.pushViewController(vc, animated: true)
+    }
 }
