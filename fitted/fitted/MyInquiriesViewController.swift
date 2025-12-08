@@ -64,6 +64,8 @@ class MyInquiriesViewController: UIViewController,
         let group = DispatchGroup()
         var built: [MyInquiry] = []
         
+        let today = Calendar.current.startOfDay(for: Date())
+        
         for doc in docs {
             let data = doc.data()
             let reqId = doc.documentID
