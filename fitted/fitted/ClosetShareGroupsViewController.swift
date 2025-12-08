@@ -43,6 +43,22 @@ class ClosetShareGroupsViewController: UIViewController, UICollectionViewDataSou
         fetchGroups()   // refresh list every time user returns
     }
     
+    private func showEmptyState() {
+        let label = UILabel()
+        label.text = "Not part of a group yet?\nJoin or create one to get started."
+        label.textAlignment = .center
+        label.textColor = .secondaryLabel
+        label.font = UIFont.systemFont(ofSize: 16, weight: .medium)
+        label.numberOfLines = 0
+
+        collectionView.backgroundView = label
+    }
+
+    private func hideEmptyState() {
+        collectionView.backgroundView = nil
+    }
+
+    
     private func checkForNewRequests() {
         guard let uid = Auth.auth().currentUser?.uid else { return }
 
@@ -147,6 +163,7 @@ class ClosetShareGroupsViewController: UIViewController, UICollectionViewDataSou
             guard !joinedIds.isEmpty else {
                 // User hasn't joined any groups
                 self.groups = []
+                self.showEmptyState()
                 self.collectionView.reloadData()
                 return
             }
@@ -181,6 +198,11 @@ class ClosetShareGroupsViewController: UIViewController, UICollectionViewDataSou
             dispatchGroup.notify(queue: .main) {
                 self.groups = loaded.sorted {
                     $0.name.localizedCaseInsensitiveCompare($1.name) == .orderedAscending
+                }
+                if self.groups.isEmpty {
+                    self.showEmptyState()
+                } else {
+                    self.hideEmptyState()
                 }
                 self.collectionView.reloadData()
             }
