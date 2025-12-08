@@ -22,6 +22,7 @@ struct MyInquiry {
     let groupName: String?
     let eventName: String?
     var requesterPhone: String?
+    let eventDate: Date
 }
 
 class MyInquiriesViewController: UIViewController,
@@ -81,6 +82,7 @@ class MyInquiriesViewController: UIViewController,
             
             var groupName: String?
             var eventName: String?
+            var eventDate: Date?
             
             let inner = DispatchGroup()
             
@@ -117,6 +119,9 @@ class MyInquiriesViewController: UIViewController,
                 db.collection("events").document(eventId).getDocument { snap, _ in
                     if let d = snap?.data() {
                         eventName = d["event_name"] as? String
+                        if let ts = d["time"] as? Timestamp {
+                            eventDate = ts.dateValue()
+                        }
                     }
                     inner.leave()
                 }
@@ -135,6 +140,8 @@ class MyInquiriesViewController: UIViewController,
             
             group.enter()
             inner.notify(queue: .main) {
+            // Only include inquiries whose event has a valid date in the future
+            if let eventDate = eventDate, eventDate >= today {
                 let inquiry = MyInquiry(
                     id: reqId,
                     status: status,
@@ -146,19 +153,21 @@ class MyInquiriesViewController: UIViewController,
                     requesterName: requesterName,
                     groupName: groupName,
                     eventName: eventName,
-                    requesterPhone: requesterPhone
+                    requesterPhone: requesterPhone,
+                    eventDate: eventDate
                 )
                 built.append(inquiry)
-                group.leave()
             }
-        }
-        
-        group.notify(queue: .main) {
-            self.inquiries = built
-            self.tableView.reloadData()
+            group.leave()
         }
     }
     
+    group.notify(queue: .main) {
+        // Sort inquiries by soonest event first
+        self.inquiries = built.sorted { $0.eventDate < $1.eventDate }
+        self.tableView.reloadData()
+    }
+}
     private func deleteInquiry(_ inquiry: MyInquiry, at indexPath: IndexPath) {
         guard let ownerUid = Auth.auth().currentUser?.uid else { return }
 
@@ -330,8 +339,6 @@ class MyInquiriesViewController: UIViewController,
     
     // MARK: - Cell delegate
     
-    // MARK: - Cell delegate
-    
     func inquiryCellDidTapApprove(_ cell: MyInquiriesTableViewCell) {
         guard let indexPath = tableView.indexPath(for: cell) else { return }
         let inquiry = inquiries[indexPath.row]
@@ -345,7 +352,6 @@ class MyInquiriesViewController: UIViewController,
     }
     
     // MARK: - Approve logic with protection
-    
     private func attemptApprove(inquiry: MyInquiry, at indexPath: IndexPath) {
         // If we don't have an item id, just approve normally
         guard !inquiry.itemId.isEmpty else {

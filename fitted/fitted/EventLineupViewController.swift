@@ -14,6 +14,7 @@ struct Event {
     let title: String
     let description: String
     let location: String
+    let date: Date
     let dateText: String
     let imageURL: String?
 }
@@ -43,13 +44,14 @@ class EventLineupViewController: UIViewController, UITableViewDataSource, UITabl
 
     
     private func fetchEvents() {
-        // Get the group document first
         db.collection("groups").document(groupId).getDocument { [weak self] snapshot, error in
             guard let self = self else { return }
+
             if let error = error {
                 print("Error fetching group:", error.localizedDescription)
                 return
             }
+
             guard let data = snapshot?.data(),
                   let eventIDs = data["events"] as? [String],
                   !eventIDs.isEmpty else {
@@ -57,32 +59,43 @@ class EventLineupViewController: UIViewController, UITableViewDataSource, UITabl
                 return
             }
 
-            // Fetch all the events using their IDs
             let eventsCollection = self.db.collection("events")
             var loadedEvents: [Event] = []
-            let group = DispatchGroup() // to wait for all fetches to complete
+            let group = DispatchGroup()
+
+            // Start of "today" in the user’s current calendar/time zone
+            let today = Calendar.current.startOfDay(for: Date())
 
             for id in eventIDs {
                 group.enter()
                 eventsCollection.document(id).getDocument { docSnapshot, error in
                     defer { group.leave() }
+
                     guard let doc = docSnapshot, doc.exists else { return }
                     let d = doc.data() ?? [:]
+
+                    // time is a Firestore Timestamp
+                    guard let timestamp = d["time"] as? Timestamp else { return }
+                    let eventDate = timestamp.dateValue()
+
+                    // Only keep events that are today or in the future
+                    guard eventDate >= today else { return }
+
                     let event = Event(
                         id: doc.documentID,
                         title: d["event_name"] as? String ?? "",
                         description: d["description"] as? String ?? "",
                         location: d["location"] as? String ?? "",
-                        dateText: self.formatDate(d["time"]),
+                        date: eventDate,
+                        dateText: self.formatDate(eventDate),
                         imageURL: d["image"] as? String
                     )
                     loadedEvents.append(event)
                 }
             }
 
-            // When all documents are loaded, update the UI
             group.notify(queue: .main) {
-                self.events = loadedEvents.sorted { $0.dateText < $1.dateText }
+                self.events = loadedEvents.sorted { $0.date < $1.date }
                 self.tableView.reloadData()
             }
         }
@@ -98,16 +111,13 @@ class EventLineupViewController: UIViewController, UITableViewDataSource, UITabl
     }
 
     
-    private func formatDate(_ value: Any?) -> String {
-        if let timestamp = value as? Timestamp {
-            let date = timestamp.dateValue()
-            let formatter = DateFormatter()
-            formatter.dateStyle = .medium
-            formatter.timeStyle = .short
-            return formatter.string(from: date)
-        }
-        return ""
+    private func formatDate(_ date: Date) -> String {
+        let formatter = DateFormatter()
+        formatter.dateStyle = .medium
+        formatter.timeStyle = .short
+        return formatter.string(from: date)
     }
+
     
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         return events.count

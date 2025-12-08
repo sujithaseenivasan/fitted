@@ -22,6 +22,7 @@ struct MyRequest {
     let eventId: String?
     let groupName: String?
     let eventName: String?
+    let eventDate: Date
 }
 
 
@@ -67,6 +68,8 @@ class MyRequestsViewController: UIViewController, UITableViewDataSource, UITable
     private func loadRequests(requestIds: [String]) {
         let group = DispatchGroup()
         var built: [MyRequest] = []
+        
+        let today = Calendar.current.startOfDay(for: Date())
 
         for reqId in requestIds {
             group.enter()
@@ -92,6 +95,7 @@ class MyRequestsViewController: UIViewController, UITableViewDataSource, UITable
 
                 var groupName: String?
                 var eventName: String?
+                var eventDate: Date?
 
                 let inner = DispatchGroup()
 
@@ -127,6 +131,9 @@ class MyRequestsViewController: UIViewController, UITableViewDataSource, UITable
                     self.db.collection("events").document(eventId).getDocument { snap, _ in
                         if let d = snap?.data() {
                             eventName = d["event_name"] as? String
+                            if let ts = d["time"] as? Timestamp {
+                                eventDate = ts.dateValue()
+                            }
                         }
                         inner.leave()
                     }
@@ -146,28 +153,34 @@ class MyRequestsViewController: UIViewController, UITableViewDataSource, UITable
                 inner.notify(queue: .main) {
                     print("Request \(reqId) has eventId=\(eventId), groupId=\(groupId), eventName=\(eventName ?? "nil"), groupName=\(groupName ?? "nil")")
 
-                    let req = MyRequest(
-                        id: reqId,
-                        status: status,
-                        itemId: itemId,
-                        ownerId: ownerId,
-                        itemName: itemName,
-                        itemImageURL: imageURL,
-                        ownerName: ownerName,
-                        groupId: groupId.isEmpty ? nil : groupId,
-                        eventId: eventId.isEmpty ? nil : eventId,
-                        groupName: groupName,
-                        eventName: eventName
-                    )
+                    // Only include requests where we have an event
+                    // AND the event is today or in the future
+                    if let eventDate = eventDate, eventDate >= today {
+                        let req = MyRequest(
+                            id: reqId,
+                            status: status,
+                            itemId: itemId,
+                            ownerId: ownerId,
+                            itemName: itemName,
+                            itemImageURL: imageURL,
+                            ownerName: ownerName,
+                            groupId: groupId.isEmpty ? nil : groupId,
+                            eventId: eventId.isEmpty ? nil : eventId,
+                            groupName: groupName,
+                            eventName: eventName,
+                            eventDate: eventDate
+                        )
+                        built.append(req)
+                    }
 
-                    built.append(req)
                     group.leave()
                 }
             }
         }
 
         group.notify(queue: .main) {
-            self.requests = built
+            // sort by upcoming event date
+            self.requests = built.sorted { $0.eventDate < $1.eventDate }
             self.tableView.reloadData()
         }
     }
