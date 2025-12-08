@@ -19,6 +19,7 @@ class GroupSettingsViewController: UIViewController, UIImagePickerControllerDele
     @IBOutlet weak var manageMembersButton: UIButton!
     @IBOutlet weak var editPhotoButton: UIButton!
     
+    @IBOutlet weak var createEventButton: UIButton!
     var groupId: String!
     
     var group: Group!
@@ -32,6 +33,9 @@ class GroupSettingsViewController: UIViewController, UIImagePickerControllerDele
 
         editPhotoButton.layer.cornerRadius = 12
         editPhotoButton.clipsToBounds = true
+        
+        createEventButton.layer.cornerRadius = 12
+        createEventButton.clipsToBounds = true
         loadGroupDetails()
     }
     

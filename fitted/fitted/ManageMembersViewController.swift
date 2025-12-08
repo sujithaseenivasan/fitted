@@ -72,7 +72,6 @@ class ManageMembersViewController: UIViewController, UITableViewDataSource, UITa
     
     
     private func loadImage(from path: String, completion: @escaping (UIImage?) -> Void) {
-        // gs:// path → Firebase Storage
         if path.hasPrefix("gs://") {
             let ref = Storage.storage().reference(forURL: path)
             ref.getData(maxSize: 5 * 1024 * 1024) { data, error in
@@ -129,6 +128,7 @@ class ManageMembersViewController: UIViewController, UITableViewDataSource, UITa
     }
     
     // Allow swipe-to-delete
+    // Allow swipe-to-delete
     func tableView(_ tableView: UITableView,
                    canEditRowAt indexPath: IndexPath) -> Bool {
         return true
@@ -140,41 +140,169 @@ class ManageMembersViewController: UIViewController, UITableViewDataSource, UITa
         guard editingStyle == .delete else { return }
 
         let member = members[indexPath.row]
-        let batch = db.batch()
-
-        // 1) groups/{groupId} → remove member.uid from group_members
+        removeMember(member, at: indexPath)
+    }
+    
+    private func removeMember(_ member: Member, at indexPath: IndexPath) {
+        let memberUid = member.uid
         let groupRef = db.collection("groups").document(groupId)
-        batch.updateData([
-            "group_members": FieldValue.arrayRemove([member.uid])
-        ], forDocument: groupRef)
+        let userRef  = db.collection("users").document(memberUid)
 
-        // 2) users/{member.uid} → remove this groupId from joinedGroups
-        let userRef = db.collection("users").document(member.uid)
-        batch.updateData([
-            "joinedGroups": FieldValue.arrayRemove([groupId as Any])
-        ], forDocument: userRef)
-
-        // 3) events/{groupId} → remove member.uid from group_members
-        let eventGroupRef = db.collection("events").document(groupId)
-        batch.updateData([
-            "group_members": FieldValue.arrayRemove([member.uid])
-        ], forDocument: eventGroupRef)
-
-        batch.commit { [weak self] error in
+        // Step 1: read the group to get its events array
+        groupRef.getDocument { [weak self] snap, error in
             guard let self = self else { return }
 
             if let error = error {
-                print("Failed to remove member: \(error.localizedDescription)")
-                // optional: show alert here
+                print("Error loading group for removal:", error.localizedDescription)
                 return
             }
 
-            // Update local data + UI
-            self.members.remove(at: indexPath.row)
-            tableView.deleteRows(at: [indexPath], with: .automatic)
+            let data = snap?.data() ?? [:]
+            let eventIds = data["events"] as? [String] ?? []
+
+            // Step 1 & 2: remove member from group_members and groupId from joinedGroups
+            let batch = self.db.batch()
+            batch.updateData(
+                ["group_members": FieldValue.arrayRemove([memberUid])],
+                forDocument: groupRef
+            )
+            batch.updateData(
+                ["joinedGroups": FieldValue.arrayRemove([self.groupId as Any])],
+                forDocument: userRef
+            )
+
+            batch.commit { [weak self] error in
+                guard let self = self else { return }
+
+                if let error = error {
+                    print("Failed to remove member from group/joinedGroups:", error.localizedDescription)
+                    return
+                }
+
+                // Now clean up items + requests for this member across the group's events
+                self.cleanupMemberData(memberUid: memberUid, eventIds: eventIds) {
+                    // Finally update UI
+                    self.members.remove(at: indexPath.row)
+                    self.tableView.deleteRows(at: [indexPath], with: .automatic)
+                }
+            }
         }
     }
+    
+    private func cleanupMemberData(memberUid: String,
+                                   eventIds: [String],
+                                   completion: @escaping () -> Void) {
+        guard !eventIds.isEmpty else {
+            completion()
+            return
+        }
 
+        let outerGroup = DispatchGroup()
+        let requestsCollection = db.collection("requests")
+        let itemsCollection = db.collection("closet_items")
+
+        for eventId in eventIds {
+            outerGroup.enter()
+
+            let eventRef = db.collection("events").document(eventId)
+
+            // Load the event doc so we can see event_items
+            eventRef.getDocument { [weak self] eventSnap, error in
+                guard let self = self else {
+                    outerGroup.leave()
+                    return
+                }
+
+                if let error = error {
+                    print("Error loading event \(eventId):", error.localizedDescription)
+                    outerGroup.leave()
+                    return
+                }
+
+                let eventData = eventSnap?.data() ?? [:]
+                let eventItemIds = eventData["event_items"] as? [String] ?? []
+
+                // 3) Figure out which event_items belong to this member (via closet_items.owner)
+                var itemIdsToRemove: [String] = []
+                let innerGroup = DispatchGroup()
+
+                for itemId in eventItemIds {
+                    innerGroup.enter()
+                    itemsCollection.document(itemId).getDocument { itemSnap, _ in
+                        if let itemData = itemSnap?.data(),
+                           let owner = itemData["owner"] as? String,
+                           owner == memberUid {
+                            itemIdsToRemove.append(itemId)
+                        }
+                        innerGroup.leave()
+                    }
+                }
+
+                innerGroup.notify(queue: .global()) {
+                    // 4) Find all requests for this member in this event (incoming + outgoing)
+                    let requestsGroup = DispatchGroup()
+                    var requestsToDelete: [DocumentReference] = []
+
+                    // As owner
+                    requestsGroup.enter()
+                    requestsCollection
+                        .whereField("eventId", isEqualTo: eventId)
+                        .whereField("ownerId", isEqualTo: memberUid)
+                        .getDocuments { snap, _ in
+                            if let docs = snap?.documents {
+                                for doc in docs {
+                                    requestsToDelete.append(doc.reference)
+                                }
+                            }
+                            requestsGroup.leave()
+                        }
+
+                    // As requester
+                    requestsGroup.enter()
+                    requestsCollection
+                        .whereField("eventId", isEqualTo: eventId)
+                        .whereField("requesterId", isEqualTo: memberUid)
+                        .getDocuments { snap, _ in
+                            if let docs = snap?.documents {
+                                for doc in docs {
+                                    requestsToDelete.append(doc.reference)
+                                }
+                            }
+                            requestsGroup.leave()
+                        }
+
+                    requestsGroup.notify(queue: .global()) {
+                        let batch = self.db.batch()
+
+                        // Unhook items from this event (do NOT delete the closet_items docs)
+                        if !itemIdsToRemove.isEmpty {
+                            batch.updateData(
+                                ["event_items": FieldValue.arrayRemove(itemIdsToRemove)],
+                                forDocument: eventRef
+                            )
+                        }
+
+                        // Delete the relevant request docs
+                        for ref in requestsToDelete {
+                            batch.deleteDocument(ref)
+                        }
+
+                        batch.commit { error in
+                            if let error = error {
+                                print("Error cleaning up event \(eventId) for member \(memberUid):",
+                                      error.localizedDescription)
+                            }
+                            outerGroup.leave()
+                        }
+                    }
+                }
+            }
+        }
+
+        outerGroup.notify(queue: .main) {
+            completion()
+        }
+    }
 
 
 }

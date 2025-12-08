@@ -1179,6 +1179,7 @@
                         </constraints>
                     </view>
                     <connections>
+                        <outlet property="createEventButton" destination="6bZ-TE-RCN" id="ie0-U5-ITo"/>
                         <outlet property="editPhotoButton" destination="HPx-oH-lp1" id="DGc-Ng-nzd"/>
                         <outlet property="groupIdLabel" destination="EfN-rm-13s" id="BYH-Ae-QPa"/>
                         <outlet property="groupNameLabel" destination="0Dq-hx-vxJ" id="lj7-1E-e5K"/>
