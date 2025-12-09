@@ -11,7 +11,7 @@ import FirebaseAuth
 import FirebaseFirestore
 import FirebaseStorage
 
-class CreateGroupViewController: UIViewController {
+class CreateGroupViewController: UIViewController , UITextFieldDelegate, UITextViewDelegate {
 
     // MARK: - Outlets
 
@@ -33,7 +33,34 @@ class CreateGroupViewController: UIViewController {
         groupDescriptionTextField.layer.cornerRadius = 8
         groupDescriptionTextField.layer.borderWidth = 0.5
         groupDescriptionTextField.layer.borderColor = UIColor.systemGray4.cgColor
+        groupNameTextField.delegate = self
+        groupIdTextField.delegate = self
+        groupPasscodeTextField.delegate = self
+        groupDescriptionTextField.delegate = self
+        
     }
+    
+    func textFieldShouldReturn(_ textField: UITextField) -> Bool {
+        textField.resignFirstResponder()
+        return true
+    }
+    
+    func textView(_ textView: UITextView,
+                  shouldChangeTextIn range: NSRange,
+                  replacementText text: String) -> Bool {
+        
+        if text == "\n" {   // User tapped Return
+            textView.resignFirstResponder()
+            return false    // Prevents newline from being added
+        }
+        return true
+    }
+    
+    override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
+        view.endEditing(true)
+    }
+
+
 
     // MARK: - Actions
 

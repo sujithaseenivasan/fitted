@@ -34,17 +34,6 @@ class LoginViewController: UIViewController, UITextFieldDelegate {
         super.viewDidLoad()
         print("Login on screen")
         self.errorLabel.text = ""
-//        loginTextLabel.font = UIFont(name: "Manjari-Regular", size: 32)
-//        alreadyHaveAcctTextLabel.font = UIFont(name: "Manjari-Regular", size: 20)
-//        emailTextField.font = UIFont(name: "Manjari-Regular", size: 16)
-//        passwordTextField.font = UIFont(name: "Manjari-Regular", size: 16)
-//        forgotPasswordButton.titleLabel?.font = UIFont(name: "Manjari-Regular", size: 16)
-//        createAccountButton.titleLabel?.font = UIFont(name: "Manjari-Regular", size: 16)
-//        loginButton.titleLabel?.font = UIFont(name: "Manjari-Regular", size: 18)
-//        errorLabel.font = UIFont(name: "Manjari-Regular", size: 16)
-
-        //self.passwordTextField.isSecureTextEntry = true
-        
         // Listener to check if a user has logged in and initiate segue
         Auth.auth().addStateDidChangeListener { [weak self] _, user in
                     guard let self = self, user != nil, !self.didSwapRoot else { return }

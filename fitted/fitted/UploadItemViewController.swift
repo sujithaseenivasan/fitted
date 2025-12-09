@@ -10,7 +10,7 @@ import FirebaseAuth
 import FirebaseFirestore
 import FirebaseStorage
 
-class UploadItemViewController: UIViewController, UIPickerViewDelegate, UIPickerViewDataSource, UITextFieldDelegate, UIImagePickerControllerDelegate, UINavigationControllerDelegate {
+class UploadItemViewController: UIViewController, UIPickerViewDelegate, UIPickerViewDataSource, UITextFieldDelegate, UIImagePickerControllerDelegate, UINavigationControllerDelegate, UITextViewDelegate {
     
     @IBOutlet weak var addItemButton: UIButton!
     @IBOutlet weak var imageView: UIImageView!
@@ -49,10 +49,14 @@ class UploadItemViewController: UIViewController, UIPickerViewDelegate, UIPicker
         clothingTypeField.inputView = picker
         colorField.inputView = picker
 
+        nameField.delegate = self
+        brandField.delegate = self
         sizeField.delegate = self
         clothingTypeField.delegate = self
         colorField.delegate = self
-
+        descriptionText.delegate = self
+        rentalPriceField.delegate = self
+        
         // toolbar with Done
         let tb = UIToolbar()
         tb.sizeToFit()
@@ -61,8 +65,31 @@ class UploadItemViewController: UIViewController, UIPickerViewDelegate, UIPicker
         clothingTypeField.inputAccessoryView = tb
         colorField.inputAccessoryView = tb
     }
+    
+    func textView(_ textView: UITextView,
+                  shouldChangeTextIn range: NSRange,
+                  replacementText text: String) -> Bool {
+        
+        if text == "\n" {   // User tapped Return
+            textView.resignFirstResponder()
+            return false    // Prevents newline from being added
+        }
+        return true
+    }
+
 
     // MARK: - UITextFieldDelegate
+    // Called when 'return' key pressed
+    func textFieldShouldReturn(_ textField:UITextField) -> Bool {
+        textField.resignFirstResponder()
+        return true
+    }
+    
+    // Called when the user clicks on the view outside of the UITextField
+    override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
+        self.view.endEditing(true)
+    }
+    
     func textFieldShouldBeginEditing(_ textField: UITextField) -> Bool {
         if textField === sizeField      { currentPickerKind = .size }
         else if textField === clothingTypeField { currentPickerKind = .type }

@@ -9,7 +9,7 @@ import UIKit
 import FirebaseFirestore
 import FirebaseStorage
 
-class CreateEventViewController: UIViewController, UIImagePickerControllerDelegate, UINavigationControllerDelegate {
+class CreateEventViewController: UIViewController, UIImagePickerControllerDelegate, UINavigationControllerDelegate, UITextFieldDelegate, UITextViewDelegate {
 
 
     @IBOutlet weak var eventNameField: UITextField!
@@ -34,6 +34,13 @@ class CreateEventViewController: UIViewController, UIImagePickerControllerDelega
     override func viewDidLoad() {
         super.viewDidLoad()
 
+        eventNameField.delegate = self
+        eventDateField.delegate = self
+        eventTimeField.delegate = self
+        eventLocationField.delegate = self
+        eventDescriptionTextView.delegate = self
+        
+        
         // Do any additional setup after loading the view.
         setupTextView()
         setupPickers()
@@ -45,14 +52,30 @@ class CreateEventViewController: UIViewController, UIImagePickerControllerDelega
             eventDescriptionTextView.layer.borderWidth = 0.5
             eventDescriptionTextView.layer.borderColor = UIColor.separator.cgColor
         }
-    private func setupTapToDismissKeyboard() {
-            let tap = UITapGestureRecognizer(target: self, action: #selector(endEditing))
-            tap.cancelsTouchesInView = false
-            view.addGestureRecognizer(tap)
+    // Called when 'return' key pressed
+
+    func textFieldShouldReturn(_ textField:UITextField) -> Bool {
+        textField.resignFirstResponder()
+        return true
+    }
+    
+    func textView(_ textView: UITextView,
+                  shouldChangeTextIn range: NSRange,
+                  replacementText text: String) -> Bool {
+
+        // If the user taps "Return"
+        if text == "\n" {
+            textView.resignFirstResponder()
+            return false   // prevents newline being added
         }
+        return true
+    }
+
     
-    @objc private func endEditing() { view.endEditing(true) }
-    
+    // Called when the user clicks on the view outside of the UITextField
+    override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
+        self.view.endEditing(true)
+    }
     private func setupPickers() {
             
             datePicker.datePickerMode = .date

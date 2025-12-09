@@ -121,7 +121,7 @@ final class UserSettingsViewController: UIViewController {
     // MARK: Header UI
     private func configureHeader() {
         // Logo image (from Assets)
-        let logoImageView = UIImageView(image: UIImage(named: "FittedLogo")) // replace with your actual asset name
+        let logoImageView = UIImageView(image: UIImage(named: "FittedLogo"))
         logoImageView.translatesAutoresizingMaskIntoConstraints = false
         logoImageView.contentMode = .scaleAspectFit
         logoImageView.heightAnchor.constraint(equalToConstant: 40).isActive = true
@@ -164,7 +164,7 @@ final class UserSettingsViewController: UIViewController {
             stack.trailingAnchor.constraint(lessThanOrEqualTo: container.trailingAnchor, constant: -16)
         ])
 
-        // Host view used as tableHeaderView (no constraints to tableView!)
+        // Host view used as tableHeaderView 
         let host = UIView()
         host.addSubview(container)
         container.translatesAutoresizingMaskIntoConstraints = false

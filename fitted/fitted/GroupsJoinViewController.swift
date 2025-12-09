@@ -8,7 +8,7 @@ import UIKit
 import FirebaseAuth
 import FirebaseFirestore
 
-class GroupsJoinViewController: UIViewController {
+class GroupsJoinViewController: UIViewController, UITextFieldDelegate {
 
     @IBOutlet weak var joinButton: UIButton!
     @IBOutlet weak var passwordField: UITextField!
@@ -18,7 +18,20 @@ class GroupsJoinViewController: UIViewController {
 
     override func viewDidLoad() {
         super.viewDidLoad()
+        passwordField.delegate = self
+        groupIdField.delegate = self
     }
+    
+    func textFieldShouldReturn(_ textField: UITextField) -> Bool {
+        textField.resignFirstResponder()
+        return true
+    }
+    
+    override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
+        view.endEditing(true)
+    }
+
+
 
     // join button pressed
     @IBAction func joinButtonTapped(_ sender: UIButton) {
