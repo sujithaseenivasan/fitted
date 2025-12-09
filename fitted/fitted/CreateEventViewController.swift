@@ -47,6 +47,16 @@ class CreateEventViewController: UIViewController, UIImagePickerControllerDelega
         setupTapToDismissKeyboard()
     }
     
+    private func setupTapToDismissKeyboard() {
+        let tap = UITapGestureRecognizer(target: self, action: #selector(endEditingTapped))
+        tap.cancelsTouchesInView = false
+        view.addGestureRecognizer(tap)
+    }
+
+    @objc private func endEditingTapped() {
+        view.endEditing(true)
+    }
+    
     private func setupTextView() {
             eventDescriptionTextView.layer.cornerRadius = 8
             eventDescriptionTextView.layer.borderWidth = 0.5

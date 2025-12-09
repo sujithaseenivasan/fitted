@@ -167,7 +167,7 @@
 				CODE_SIGN_ENTITLEMENTS = fitted/fitted.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = BLYRA5XG4Y;
+				DEVELOPMENT_TEAM = 4W5QLC2H2L;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = fitted/Info.plist;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
@@ -180,7 +180,7 @@
 					"@executable_path/Frameworks",
 				);
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = "fitted-app.fitted";
+				PRODUCT_BUNDLE_IDENTIFIER = "sarahfedorchakfitted-app.fitted";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;
@@ -196,7 +196,7 @@
 				CODE_SIGN_ENTITLEMENTS = fitted/fitted.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = BLYRA5XG4Y;
+				DEVELOPMENT_TEAM = 4W5QLC2H2L;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = fitted/Info.plist;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
@@ -209,7 +209,7 @@
 					"@executable_path/Frameworks",
 				);
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = "fitted-app.fitted";
+				PRODUCT_BUNDLE_IDENTIFIER = "sarahfedorchakfitted-app.fitted";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;
