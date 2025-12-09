@@ -99,8 +99,6 @@ class OwnedGroupsViewController: UIViewController, UICollectionViewDataSource, U
         }
     }
 
-    // MARK: - Storage image helper
-
     private func loadImage(from storagePath: String, completion: @escaping (UIImage?) -> Void) {
         let storageRef = Storage.storage().reference(forURL: storagePath)
         storageRef.getData(maxSize: 5 * 1024 * 1024) { data, error in
@@ -117,7 +115,6 @@ class OwnedGroupsViewController: UIViewController, UICollectionViewDataSource, U
         }
     }
 
-    // MARK: - CollectionView data source
 
     func collectionView(_ collectionView: UICollectionView,
                         numberOfItemsInSection section: Int) -> Int {
@@ -213,36 +210,49 @@ class OwnedGroupsViewController: UIViewController, UICollectionViewDataSource, U
     }
 
     private func delete(group: Group, indexPath: IndexPath) {
-        guard let uid = Auth.auth().currentUser?.uid else { return }
+        guard let ownerUid = Auth.auth().currentUser?.uid else { return }
 
         let groupId = group.id
         let groupRef = db.collection("groups").document(groupId)
 
-        // 1) Delete optional image from Storage
-        if let path = group.imagePath {
-            let storageRef = Storage.storage().reference(forURL: path)
-            storageRef.delete { error in
-                if let error = error {
-                    print("Error deleting group image:", error.localizedDescription)
-                }
-            }
-        }
+        // First load the group so we can see its members + events
+        groupRef.getDocument { [weak self] snap, error in
+            guard let self = self else { return }
 
-        // 2) Delete group document
-        groupRef.delete { err in
-            if let err = err {
-                print("Error deleting group doc:", err.localizedDescription)
+            if let error = error {
+                print("Error loading group for deletion:", error.localizedDescription)
                 return
             }
 
-            // 3) Remove ID from user's owned_groups
-            self.db.collection("users").document(uid)
-                .updateData(["owned_groups": FieldValue.arrayRemove([groupId])]) { err2 in
-                    if let err2 = err2 {
-                        print("Error updating owned_groups:", err2.localizedDescription)
+            let data = snap?.data() ?? [:]
+            let memberIds = data["group_members"] as? [String] ?? []
+            let eventIds  = data["events"] as? [String] ?? []
+
+            // Clean up users + requests, then actually delete the group
+            self.cleanupForGroupDeletion(
+                groupId: groupId,
+                memberIds: memberIds,
+                eventIds: eventIds,
+                ownerUid: ownerUid
+            ) {
+                // 1) Delete optional image from Storage
+                if let path = group.imagePath {
+                    let storageRef = Storage.storage().reference(forURL: path)
+                    storageRef.delete { error in
+                        if let error = error {
+                            print("Error deleting group image:", error.localizedDescription)
+                        }
+                    }
+                }
+
+                // 2) Delete the group document itself
+                groupRef.delete { err in
+                    if let err = err {
+                        print("Error deleting group doc:", err.localizedDescription)
+                        return
                     }
 
-                    // 4) Update local model + UI
+                    // 3) Update local model + UI
                     DispatchQueue.main.async {
                         if self.groups.indices.contains(indexPath.item) {
                             self.groups.remove(at: indexPath.item)
@@ -253,10 +263,83 @@ class OwnedGroupsViewController: UIViewController, UICollectionViewDataSource, U
                         }
                     }
                 }
+            }
+        }
+    }
+    
+    private func cleanupForGroupDeletion(groupId: String,
+                                         memberIds: [String],
+                                         eventIds: [String],
+                                         ownerUid: String,
+                                         completion: @escaping () -> Void) {
+        let outerGroup = DispatchGroup()
+
+        // 1) For every member: remove groupId from joinedGroups
+        //    For the owner: also remove from owned_groups
+        for uid in memberIds {
+            outerGroup.enter()
+
+            var updates: [String: Any] = [
+                "joinedGroups": FieldValue.arrayRemove([groupId])
+            ]
+
+            if uid == ownerUid {
+                updates["owned_groups"] = FieldValue.arrayRemove([groupId])
+            }
+
+            db.collection("users").document(uid).updateData(updates) { err in
+                if let err = err {
+                    print("Error updating user \(uid):", err.localizedDescription)
+                }
+                outerGroup.leave()
+            }
+        }
+
+        // 2) For each event in this group, delete all requests with that eventId
+        let requestsCollection = db.collection("requests")
+
+        for eventId in eventIds {
+            outerGroup.enter()
+
+            requestsCollection
+                .whereField("eventId", isEqualTo: eventId)
+                .getDocuments { snap, err in
+                    if let err = err {
+                        print("Error querying requests for event \(eventId):", err.localizedDescription)
+                        outerGroup.leave()
+                        return
+                    }
+
+                    guard let docs = snap?.documents, !docs.isEmpty else {
+                        outerGroup.leave()
+                        return
+                    }
+
+                    let batch = self.db.batch()
+                    for doc in docs {
+                        batch.deleteDocument(doc.reference)
+                    }
+
+                    batch.commit { err2 in
+                        if let err2 = err2 {
+                            print("Error deleting requests for event \(eventId):", err2.localizedDescription)
+                        }
+                        outerGroup.leave()
+                    }
+                }
+        }
+
+        // If there are no members or events, we still want to call completion
+        if memberIds.isEmpty && eventIds.isEmpty {
+            completion()
+            return
+        }
+
+        outerGroup.notify(queue: .main) {
+            completion()
         }
     }
 
-    // MARK: - Tap → open group settings
 
     func collectionView(_ collectionView: UICollectionView,
                         didSelectItemAt indexPath: IndexPath) {

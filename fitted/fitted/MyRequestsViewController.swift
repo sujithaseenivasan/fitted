@@ -46,6 +46,21 @@ class MyRequestsViewController: UIViewController, UITableViewDataSource, UITable
         fetchOutgoingRequests()
     }
     
+    private func showEmptyState() {
+        let label = UILabel()
+        label.text = "No requests yet.\nWhen you request an item, it will appear here."
+        label.textAlignment = .center
+        label.textColor = .secondaryLabel
+        label.font = UIFont.systemFont(ofSize: 16, weight: .medium)
+        label.numberOfLines = 0
+
+        tableView.backgroundView = label
+    }
+
+    private func hideEmptyState() {
+        tableView.backgroundView = nil
+    }
+    
     private func fetchOutgoingRequests() {
         guard let uid = Auth.auth().currentUser?.uid else { return }
 
@@ -57,6 +72,7 @@ class MyRequestsViewController: UIViewController, UITableViewDataSource, UITable
 
             guard !requestIds.isEmpty else {
                 self.requests = []
+                self.showEmptyState()
                 self.tableView.reloadData()
                 return
             }
@@ -181,7 +197,13 @@ class MyRequestsViewController: UIViewController, UITableViewDataSource, UITable
         group.notify(queue: .main) {
             // sort by upcoming event date
             self.requests = built.sorted { $0.eventDate < $1.eventDate }
+            if built.isEmpty {
+                self.showEmptyState()
+            } else {
+                self.hideEmptyState()
+            }
             self.tableView.reloadData()
+            
         }
     }
 

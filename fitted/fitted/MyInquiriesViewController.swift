@@ -43,7 +43,21 @@ class MyInquiriesViewController: UIViewController,
         fetchIncomingRequests()
     }
     
-    // MARK: - Firestore loading
+    private func showEmptyState() {
+        let label = UILabel()
+        label.text = "No inquiries yet.\nWhen someone requests one of your items, it will appear here."
+        label.textAlignment = .center
+        label.textColor = .secondaryLabel
+        label.font = UIFont.systemFont(ofSize: 16, weight: .medium)
+        label.numberOfLines = 0
+
+        tableView.backgroundView = label
+    }
+
+    private func hideEmptyState() {
+        tableView.backgroundView = nil
+    }
+    
     
     private func fetchIncomingRequests() {
         guard let uid = Auth.auth().currentUser?.uid else { return }
@@ -56,9 +70,20 @@ class MyInquiriesViewController: UIViewController,
                     print("Error loading incoming requests: \(error)")
                     return
                 }
-                self.buildInquiries(from: snapshot?.documents ?? [])
+
+                let docs = snapshot?.documents ?? []
+
+                guard !docs.isEmpty else {
+                    self.inquiries = []
+                    self.showEmptyState()
+                    self.tableView.reloadData()
+                    return
+                }
+
+                self.buildInquiries(from: docs)
             }
     }
+
     
     private func buildInquiries(from docs: [QueryDocumentSnapshot]) {
         let group = DispatchGroup()
@@ -167,6 +192,11 @@ class MyInquiriesViewController: UIViewController,
     group.notify(queue: .main) {
         // Sort inquiries by soonest event first
         self.inquiries = built.sorted { $0.eventDate < $1.eventDate }
+        if self.inquiries.isEmpty {
+            self.showEmptyState()
+        } else {
+            self.hideEmptyState()
+        }
         self.tableView.reloadData()
     }
 }

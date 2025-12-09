@@ -40,6 +40,21 @@ class MyClosetViewController: UIViewController, UICollectionViewDataSource, UICo
         super.viewWillAppear(animated)
         fetchMyCloset()
     }
+    
+    private func showEmptyState() {
+        let label = UILabel()
+        label.text = "Your closet is empty.\nAdd items to see them here."
+        label.textAlignment = .center
+        label.textColor = .secondaryLabel
+        label.font = UIFont.systemFont(ofSize: 16, weight: .medium)
+        label.numberOfLines = 0
+
+        collectionView.backgroundView = label
+    }
+
+    private func hideEmptyState() {
+        collectionView.backgroundView = nil
+    }
 
     
     private func fetchMyCloset() {
@@ -51,9 +66,11 @@ class MyClosetViewController: UIViewController, UICollectionViewDataSource, UICo
                   !itemIds.isEmpty else {
                 // no items -> clear and reload
                 self.items = []
+                self.showEmptyState()
                 self.collectionView.reloadData()
                 return
             }
+            self.hideEmptyState()
             self.fetchClosetItems(ids: itemIds)
         }
     }
@@ -77,6 +94,11 @@ class MyClosetViewController: UIViewController, UICollectionViewDataSource, UICo
 
         group.notify(queue: .main) {
             self.items = results
+            if results.isEmpty {
+                self.showEmptyState()
+            } else {
+                self.hideEmptyState()
+            }
             self.collectionView.reloadData()
         }
     }

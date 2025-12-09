@@ -122,10 +122,12 @@ class CreateGroupViewController: UIViewController , UITextFieldDelegate, UITextV
                 }
 
                 db.collection("users").document(currentUser.uid)
-                    .setData(["owned_groups": FieldValue.arrayUnion([groupDocId])],
-                             merge: true) { err in
+                    .setData([
+                        "owned_groups": FieldValue.arrayUnion([groupDocId]),
+                        "joinedGroups": FieldValue.arrayUnion([groupDocId])
+                    ], merge: true) { err in
                         if let err = err {
-                            print("Error updating owned_groups:", err.localizedDescription)
+                            print("Error updating user groups:", err.localizedDescription)
                         }
                         DispatchQueue.main.async {
                             self.navigationController?.popViewController(animated: true)
@@ -162,7 +164,6 @@ class CreateGroupViewController: UIViewController , UITextFieldDelegate, UITextV
         }
     }
 
-    // MARK: - Helpers
 
     private func showSimpleAlert(title: String, message: String) {
         let alert = UIAlertController(title: title,
@@ -173,7 +174,6 @@ class CreateGroupViewController: UIViewController , UITextFieldDelegate, UITextV
     }
 }
 
-// MARK: - PHPicker Delegate
 
 extension CreateGroupViewController: PHPickerViewControllerDelegate {
     func picker(_ picker: PHPickerViewController,
